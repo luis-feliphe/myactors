@@ -1,0 +1,16 @@
+<?xml version="1.0" standalone="no"?>
+<!DOCTYPE plot PUBLIC "-//UC Berkeley//DTD MoML 1//EN"
+    "http://ptolemy.eecs.berkeley.edu/xml/dtd/MoML_1.dtd">
+<entity name="myactors" class="ptolemy.moml.EntityLibrary">
+  <configure>
+    <?moml
+      <group>
+<doc>My Actors</doc>
+<entity name="SensorSender" class="ptolemy.myactors.sender">
+<doc>Create a sequence of tokens with increasing value of 2</doc>
+</entity>
+
+      </group>
+    ?>
+  </configure>
+</entity>
