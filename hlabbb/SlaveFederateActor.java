@@ -125,6 +125,7 @@ public class SlaveFederateActor extends TypedAtomicActor implements
 		outSensor2 = new TypedIOPort(this, "sensor2", false, true);
 		outSensor3 = new TypedIOPort(this, "sensor3", false, true);
 		outGps = new TypedIOPort(this, "gps", false, true);
+		outGps.setMultiport(true);
 		outCompass = new TypedIOPort(this, "compass", false, true);
 		outgoto = new TypedIOPort(this, "goto", false, true);
 		outRotate = new TypedIOPort(this, "rotate", false, true);
@@ -241,42 +242,57 @@ public class SlaveFederateActor extends TypedAtomicActor implements
 
 			String[] v = new String [10];
 
-			StringToken battery, temperature, sensor1, sensor2, sensor3, gps, compass, gotoM, rotate, activate;
+			DoubleToken temperature, battery;
+			StringToken  sensor1, sensor2, sensor3, gps, compass, gotoM, rotate, activate;
 
 			try {
 				
-				System.out.println(" ----- Valores no Slave----- ");
+				//System.out.println(" ----- Valores no Slave----- ");
 				for (int i = 0; i < v.length; i++) {
 					v[i] = EncodingHelpers.decodeString(attributesToSend.getReceivedData().getValue(i));
-					System.out.println("Indice: "+i +"  Valor: "+ v[i]);
+					//System.out.println("Indice: "+i +"  Valor: "+ v[i]);
 				}
-				System.out.println(" ----------------------------- ");
-			//	v = value.split(":");
+				//System.out.println(" ----------------------------- ");
 				for (int i = 0; i < v.length; i++) {
-					v[i] = v[i].split(":")[1];
 					v[i] = v[i].replace("\"", "");
 					v[i] = v[i].replace("\\", "");
-					v[i] = v[i].replace(" ", "");
+					v[i] = v[i].replace("\"", "");
+					if (i!=8){
+						v[i] = v[i].replace(" ", "");
+					}
 					v[i] = v[i].replace(";", "");
 				}
 
-				battery = new StringToken(v[0]);
-				temperature = new StringToken(v[1]);
-				sensor1 = new StringToken(v[2]);
-				sensor2 = new StringToken(v[3]);
-				sensor3 = new StringToken(v[4]);
+				battery = new DoubleToken(v[0]);
+				temperature = new DoubleToken(v[1]);
+				System.out.println("A temperatura recebida foi :" + temperature.toString());
+				compass = new StringToken(v[2]);
+				sensor1 = new StringToken(v[3]);
+				rotate = new StringToken(v[4]);
+				activate = new StringToken(v[5]);
+				gotoM = new StringToken(v[6]);
+				sensor2 = new StringToken(v[7]);
 				gps = new StringToken(v[8]);
-				compass = new StringToken(v[6]);
-				gotoM = new StringToken(v[7]);
-				rotate = new StringToken(v[5]);
-				activate = new StringToken(v[9]);
-
+				sensor3 = new StringToken(v[9]);
+				// tratamento do gps para divisão em 3 partes x y e z
+				String xyz []= gps.toString().split(", ");
+				for (int i = 0; i < xyz.length; i++) {
+					xyz[i] = xyz[i].replace("\"", "");
+					xyz[i] = xyz[i].replace("\"", "");
+					xyz[i] = xyz[i].replace("\"", "");
+					xyz[i] = xyz[i].replace("\'", "");
+				}
+				
 				outbattery.send(0, battery);
-				outTemperature.send(0, temperature);
+				outTemperature.send(0,temperature);
 				outSensor1.send(0, sensor1);
 				outSensor2.send(0, sensor2);
 				outSensor3.send(0, sensor3);
-				outGps.send(0, gps);
+				// tres saidas para o gps
+				outGps.send(0, new DoubleToken (xyz[0]));
+				outGps.send(1, new DoubleToken (xyz[1]));
+				outGps.send(2, new DoubleToken (xyz[2]));
+				// --- 
 				outgoto.send(0, gotoM);
 				outRotate.send(0, rotate);
 				outActivate.send(0, activate);
