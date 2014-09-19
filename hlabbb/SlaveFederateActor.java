@@ -27,28 +27,19 @@
  */
 package ptolemy.myactors.hlabbb;
 
-import java.util.Calendar;
-
 import hla.rti.ArrayIndexOutOfBounds;
 import hla.rti.jlc.EncodingHelpers;
 import ptolemy.actor.TypedAtomicActor;
 import ptolemy.actor.TypedIOPort;
-import ptolemy.actor.lib.conversions.ExpressionToToken;
-import ptolemy.data.BooleanToken;
-import ptolemy.data.DoubleToken;
-import ptolemy.data.IntMatrixToken;
-import ptolemy.data.RecordToken;
 import ptolemy.data.StringToken;
-import ptolemy.data.IntToken;
 import ptolemy.data.Token;
-import ptolemy.data.expr.Parameter;
 import ptolemy.kernel.CompositeEntity;
 import ptolemy.kernel.util.IllegalActionException;
 import ptolemy.kernel.util.Location;
 import ptolemy.kernel.util.NameDuplicationException;
 
 //////////////////////////////////////////////////////////////////////////
-//// Locator
+////Locator
 
 /**
  * This is a wireless sensor node that reacts to an input event by transmitting
@@ -125,7 +116,6 @@ public class SlaveFederateActor extends TypedAtomicActor implements
 		outSensor2 = new TypedIOPort(this, "sensor2", false, true);
 		outSensor3 = new TypedIOPort(this, "sensor3", false, true);
 		outGps = new TypedIOPort(this, "gps", false, true);
-		outGps.setMultiport(true);
 		outCompass = new TypedIOPort(this, "compass", false, true);
 		outgoto = new TypedIOPort(this, "goto", false, true);
 		outRotate = new TypedIOPort(this, "rotate", false, true);
@@ -228,7 +218,7 @@ public class SlaveFederateActor extends TypedAtomicActor implements
 		super.fire();
 
 		try {
-			Thread.sleep(10000);
+			Thread.sleep(10);
 		} catch (InterruptedException e1) {
 			// TODO Auto-generated catch block
 			e1.printStackTrace();
@@ -240,59 +230,45 @@ public class SlaveFederateActor extends TypedAtomicActor implements
 		// angelo - estava comentado - novo modelo
 		if (attributesToSend != null) {
 
-			String[] v = new String [10];
+			String[] v = new String[10];
 
-			DoubleToken temperature, battery;
-			StringToken  sensor1, sensor2, sensor3, gps, compass, gotoM, rotate, activate;
+			StringToken battery, temperature, sensor1, sensor2, sensor3, gps, compass, gotoM, rotate, activate;
 
 			try {
-				
-				//System.out.println(" ----- Valores no Slave----- ");
+
+				System.out.println(" ----- Valores no Slave----- ");
 				for (int i = 0; i < v.length; i++) {
-					v[i] = EncodingHelpers.decodeString(attributesToSend.getReceivedData().getValue(i));
-					//System.out.println("Indice: "+i +"  Valor: "+ v[i]);
+					v[i] = EncodingHelpers.decodeString(attributesToSend
+							.getReceivedData().getValue(i));
+					System.out.println("Indice: " + i + "  Valor: " + v[i]);
 				}
-				//System.out.println(" ----------------------------- ");
+				System.out.println(" ----------------------------- ");
+				// v = value.split(":");
 				for (int i = 0; i < v.length; i++) {
+					v[i] = v[i].split(":")[1];
 					v[i] = v[i].replace("\"", "");
 					v[i] = v[i].replace("\\", "");
-					v[i] = v[i].replace("\"", "");
-					if (i!=8){
-						v[i] = v[i].replace(" ", "");
-					}
+					v[i] = v[i].replace(" ", "");
 					v[i] = v[i].replace(";", "");
 				}
 
-				battery = new DoubleToken(v[0]);
-				temperature = new DoubleToken(v[1]);
-				System.out.println("A temperatura recebida foi :" + temperature.toString());
-				compass = new StringToken(v[2]);
-				sensor1 = new StringToken(v[3]);
-				rotate = new StringToken(v[4]);
-				activate = new StringToken(v[5]);
-				gotoM = new StringToken(v[6]);
-				sensor2 = new StringToken(v[7]);
+				battery = new StringToken(v[0]);
+				temperature = new StringToken(v[1]);
+				sensor1 = new StringToken(v[2]);
+				sensor2 = new StringToken(v[3]);
+				sensor3 = new StringToken(v[4]);
 				gps = new StringToken(v[8]);
-				sensor3 = new StringToken(v[9]);
-				// tratamento do gps para divisão em 3 partes x y e z
-				String xyz []= gps.toString().split(", ");
-				for (int i = 0; i < xyz.length; i++) {
-					xyz[i] = xyz[i].replace("\"", "");
-					xyz[i] = xyz[i].replace("\"", "");
-					xyz[i] = xyz[i].replace("\"", "");
-					xyz[i] = xyz[i].replace("\'", "");
-				}
-				
+				compass = new StringToken(v[6]);
+				gotoM = new StringToken(v[7]);
+				rotate = new StringToken(v[5]);
+				activate = new StringToken(v[9]);
+
 				outbattery.send(0, battery);
-				outTemperature.send(0,temperature);
+				outTemperature.send(0, temperature);
 				outSensor1.send(0, sensor1);
 				outSensor2.send(0, sensor2);
 				outSensor3.send(0, sensor3);
-				// tres saidas para o gps
-				outGps.send(0, new DoubleToken (xyz[0]));
-				outGps.send(1, new DoubleToken (xyz[1]));
-				outGps.send(2, new DoubleToken (xyz[2]));
-				// --- 
+				outGps.send(0, gps);
 				outgoto.send(0, gotoM);
 				outRotate.send(0, rotate);
 				outActivate.send(0, activate);

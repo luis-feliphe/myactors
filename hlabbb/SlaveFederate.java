@@ -13,6 +13,21 @@
  * 
  */
 package ptolemy.myactors.hlabbb;
+/* 
+ *   Copyright 2007 The Portico Project 
+ * 
+ *   This file is part of portico. 
+ * 
+ *   portico is free software; you can redistribute it and/or modify 
+ *   it under the terms of the Common Developer and Distribution License (CDDL)  
+ *   as published by Sun Microsystems. For more information see the LICENSE file. 
+ *    
+ *   Use of this software is strictly AT YOUR OWN RISK!!! 
+ *   If something bad happens you do not have permission to come crying to me. 
+ *   (that goes for your lawyer as well) 
+ * 
+ */
+
 
 import hla.rti.AttributeHandleSet;
 import hla.rti.FederatesCurrentlyJoined;
@@ -54,7 +69,7 @@ import certi.rti.impl.CertiRtiAmbassador;
  * This is an example federate demonstrating how to properly use the HLA 1.3
  * Java interface supplied with Portico.
  * 
- * As it is intended for example purposes, this is a rather hlabbb federate. The
+ * As it is intended for example purposes, this is a rather simple federate. The
  * process is goes through is as follows:
  * 
  * 1. Create the RTIambassador 2. Try to create the federation (nofail) 3. Join
@@ -80,7 +95,7 @@ import certi.rti.impl.CertiRtiAmbassador;
  * 
  * The main method to take notice of is {@link #runFederate(String)}. It
  * controls the main simulation loop and triggers most of the important
- * behaviour. To make the code hlabbbr to read and navigate, many of the
+ * behaviour. To make the code simpler to read and navigate, many of the
  * important HLA activities are broken down into separate methods. For example,
  * if you want to know how to send an interaction, see the
  * {@link #sendInteraction()} method.
@@ -487,7 +502,7 @@ public class SlaveFederate extends SigarCommandBase implements PtolemyFederate {
 		// ///////////////////////////////////////////////////
 		// we want to send interactions of type InteractionRoot.X, so we need
 		// to tell the RTI that we're publishing it first. We don't need to
-		// inform it of the parameters, only the class, making it much hlabbbr
+		// inform it of the parameters, only the class, making it much simpler
 		//int interactionHandle = rtiamb.getInteractionClassHandle("InteractionRoot.X");
 
 		// do the publication
