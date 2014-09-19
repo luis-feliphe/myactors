@@ -323,13 +323,13 @@ public class MasterFederateActor extends TypedAtomicActor implements
 
 			try {
 
-				System.out.println(" ----- Valores no Slave----- ");
+				//System.out.println(" ----- Valores no Slave----- ");
 				for (int i = 0; i < v.length; i++) {
 					v[i] = EncodingHelpers.decodeString(attributesToSend
 							.getReceivedData().getValue(i));
-					System.out.println("Indice: " + i + "  Valor: " + v[i]);
+					//System.out.println("Indice: " + i + "  Valor: " + v[i]);
 				}
-				System.out.println(" ----------------------------- ");
+				//System.out.println(" ----------------------------- ");
 				// v = value.split(":");
 				for (int i = 0; i < v.length; i++) {
 					v[i] = v[i].split(":")[1];

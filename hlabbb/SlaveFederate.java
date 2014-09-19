@@ -437,6 +437,7 @@ public class SlaveFederate extends SigarCommandBase implements PtolemyFederate {
 	 * about as other federates produce it.
 	 */
 	private void publishAndSubscribe() throws RTIexception {
+		System.out.println("ESTA CHEGANDO AO PUBLISH AND SUBSCRIBE");
 		// //////////////////////////////////////////
 		// publish all attributes of ObjectRoot.A //
 		// //////////////////////////////////////////
@@ -532,45 +533,68 @@ public class SlaveFederate extends SigarCommandBase implements PtolemyFederate {
 		/*
 		 * This part of code are comented cause Slave do not send data, but afoter this can change  
 		 */
-		
-		
-		/*
-		// /////////////////////////////////////////////
-		// create the necessary container and values //
-		// /////////////////////////////////////////////
-		// create the collection to store the values in, as you can see
-		// this is quite a lot of work
+	System.out.println("SLAVE: UPDATE ATTRIBUTE VALUES");
+
 		SuppliedAttributes attributes = RtiFactoryFactory.getRtiFactory()
 				.createSuppliedAttributes();
 
-		String[] valores = data.split(" - ");
+		String[] tokens = data.split(" - ");
 
-		byte[] aaValue = EncodingHelpers.encodeString("canal1:" + valores[0]);
-		byte[] abValue = EncodingHelpers.encodeString("canal2:" + valores[0]);
-		byte[] acValue = EncodingHelpers.encodeString("canal3:" + valores[0]);
-
-		int classHandle = rtiamb.getObjectClass(objectHandle);
-		int aaHandle = rtiamb.getAttributeHandle("canal1", classHandle);
-		int abHandle = rtiamb.getAttributeHandle("canal2", classHandle);
-		int acHandle = rtiamb.getAttributeHandle("canal3", classHandle);
 		
-		attributes.add(aaHandle, aaValue);
-		attributes.add(abHandle, abValue);
-		attributes.add(acHandle, acValue);
+		/*
+		 * Recebendo valores (Utilizar ordem crescente
+		 */
+		byte[] battery = EncodingHelpers.encodeString("battery:" + tokens[0]);
+		byte[] temperature = EncodingHelpers.encodeString("temperature:"
+				+ tokens[1]);
+		byte[] sensor1 = EncodingHelpers.encodeString("sensor1:" + tokens[2]);
+		byte[] sensor2 = EncodingHelpers.encodeString("sensor2:" + tokens[3]);
+		byte[] sensor3 = EncodingHelpers.encodeString("sensor3:" + tokens[4]);
+		byte[] gps = EncodingHelpers.encodeString("gps:" + tokens[5]);
+		byte[] compass = EncodingHelpers.encodeString("compass:" + tokens[6]);
+		byte[] gotom = EncodingHelpers.encodeString("goto:" + tokens[7]);
+		byte[] rotate = EncodingHelpers.encodeString("rotate:" + tokens[8]);
+		byte[] activate = EncodingHelpers.encodeString("activate:" + tokens[9]);
+		
+		//System.out.println("----- Mostrando valores -------");
+		for (int i = 0 ; i < tokens.length; i++ ){
+			//System.out.println(tokens[i]);
+		}
+		//System.out.println(" ----- Fim de valores ---------");
+		
+		int classHandle = rtiamb.getObjectClass(objectHandle);
+/*
+ * Adicionando valores recebidos a variavel attributes
+ */
+		attributes.add(rtiamb.getAttributeHandle("battery", classHandle),
+				battery);
+		attributes.add(rtiamb.getAttributeHandle("temperature", classHandle),
+				temperature);
+		attributes.add(rtiamb.getAttributeHandle("sensor1", classHandle),
+				sensor1);
+		attributes.add(rtiamb.getAttributeHandle("sensor2", classHandle),
+				sensor2);
+		attributes.add(rtiamb.getAttributeHandle("sensor3", classHandle),
+				sensor3);
+		attributes.add(rtiamb.getAttributeHandle("gps", classHandle), gps);
+		attributes.add(rtiamb.getAttributeHandle("compass", classHandle),
+				compass);
+		attributes.add(rtiamb.getAttributeHandle("goto", classHandle), gotom);
+		attributes
+				.add(rtiamb.getAttributeHandle("rotate", classHandle), rotate);
+		attributes.add(rtiamb.getAttributeHandle("activate", classHandle),
+				activate);
 
-		// ////////////////////////
-		// do the actual update //
-		// ////////////////////////
-
+		
+		/*
+		 * Enviando via HLA
+		 */
 		byte[] tag = EncodingHelpers.encodeString("hi!");
 		rtiamb.updateAttributeValues(objectHandle, attributes, tag);
-
-		// note that if you want to associate a particular timestamp with the
-		// update. here we send another update, this time with a timestamp:
-		CertiLogicalTime time = new CertiLogicalTime(fedamb.federateTime
-				+ fedamb.federateLookahead);
+		CertiLogicalTime time = new CertiLogicalTime(fedamb.federateTime+ fedamb.federateLookahead);
+	
 		rtiamb.updateAttributeValues(objectHandle, attributes, tag, time);
-		*/
+
 	}
 
 	/**
