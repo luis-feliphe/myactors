@@ -212,14 +212,7 @@ public class SlaveFederate extends SigarCommandBase implements PtolemyFederate {
 		// other federates.
 		waitForUser();
 		
-	    Calendar data = Calendar.getInstance();  
-	    int hora = data.get(Calendar.HOUR_OF_DAY);   
-	    int min = data.get(Calendar.MINUTE);  
-	    int seg = data.get(Calendar.SECOND);  
-	    int mseg = data.get(Calendar.MILLISECOND);  
-
-	    System.out.println("Simula�ao iniciada de " + hora + "horas, " + min + "min, " + seg +" segundos e" + mseg + "msegundos");
-
+	
 		/*
 		 * MBeanServerConnection mbsc =
 		 * ManagementFactory.getPlatformMBeanServer();
@@ -242,8 +235,7 @@ public class SlaveFederate extends SigarCommandBase implements PtolemyFederate {
 		// tell the RTI we are ready to move past the sync point and then wait
 		// until the federation has synchronized on
 		log("calling achieveSynchronizationPoint()");
-		//achieveSynchronizationPoint();
-
+		achieveSynchronizationPoint();
 		// ///////////////////////////
 		// 6. enable time policies //
 		// ///////////////////////////

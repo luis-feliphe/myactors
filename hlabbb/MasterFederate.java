@@ -206,7 +206,7 @@ public class MasterFederate extends SigarCommandBase implements PtolemyFederate 
 		// until the federation has synchronized on
 		log("calling achieveSynchronizationPoint()");
 		//TODO APENAS REMOVIDO PARA TESTES EM PYTHON
-		//achieveSynchronizationPoint();
+		achieveSynchronizationPoint();
 
 		// ///////////////////////////
 		// 6. enable time policies //

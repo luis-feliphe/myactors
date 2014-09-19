@@ -306,16 +306,17 @@ public class MasterFederateActor extends TypedAtomicActor implements
 
 	public void fire() throws IllegalActionException {
 		super.fire();
-
+/*
 		try {
 			Thread.sleep(10);
 		} catch (InterruptedException e1) {
 			// TODO Auto-generated catch block
 			e1.printStackTrace();
 		}
-
+*/
+		System.out.println("FIRE (MASTER)");
 		if (attributesToSend != null) {
-
+			System.out.println("ATRIBUTES TO SEND");
 			String[] v = new String[10];
 
 			StringToken battery, temperature, sensor1, sensor2, sensor3, gps, compass, gotoM, rotate, activate;
@@ -369,8 +370,8 @@ public class MasterFederateActor extends TypedAtomicActor implements
 
 		}// angelo - estava comentado - novo modelo
 
-		if (input.getWidth()>0) {
-
+		if (input.hasToken(0)) {
+			System.out.println("MASTER: HAS TOKEN (INPUT)");
 			Token battery = new StringToken("none");
 			Token temperature = new StringToken("none");
 			Token sensor1 = new StringToken("none");

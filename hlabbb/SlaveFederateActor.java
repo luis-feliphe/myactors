@@ -256,13 +256,14 @@ public class SlaveFederateActor extends TypedAtomicActor implements
 	public void fire() throws IllegalActionException {
 		super.fire();
 
-		try {
+	/*	try {
 			Thread.sleep(10);
 		} catch (InterruptedException e1) {
 			// TODO Auto-generated catch block
 			e1.printStackTrace();
 		}
-			
+		*/
+		System.out.println("FIRE (SLAVE)");
 		
 		if (attributesToSend != null) {
 
@@ -320,7 +321,7 @@ public class SlaveFederateActor extends TypedAtomicActor implements
 		}// angelo - estava comentado - novo modelo
 
 		if (input.hasToken(0)) {
-
+			System.out.println("HAS TOKEN");
 			Token battery = new StringToken("none");
 			Token temperature = new StringToken("none");
 			Token sensor1 = new StringToken("none");
