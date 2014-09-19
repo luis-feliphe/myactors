@@ -26,33 +26,37 @@
 
  */
 package ptolemy.myactors.hlabbb;
+
 /* A class modeling a sensor that transmits location information.
 
-Copyright (c) 2003-2005 The Regents of the University of California.
-All rights reserved.
-Permission is hereby granted, without written agreement and without
-license or royalty fees, to use, copy, modify, and distribute this
-software and its documentation for any purpose, provided that the above
-copyright notice and the following two paragraphs appear in all copies
-of this software.
+ Copyright (c) 2003-2005 The Regents of the University of California.
+ All rights reserved.
+ Permission is hereby granted, without written agreement and without
+ license or royalty fees, to use, copy, modify, and distribute this
+ software and its documentation for any purpose, provided that the above
+ copyright notice and the following two paragraphs appear in all copies
+ of this software.
 
-IN NO EVENT SHALL THE UNIVERSITY OF CALIFORNIA BE LIABLE TO ANY PARTY
-FOR DIRECT, INDIRECT, SPECIAL, INCIDENTAL, OR CONSEQUENTIAL DAMAGES
-ARISING OUT OF THE USE OF THIS SOFTWARE AND ITS DOCUMENTATION, EVEN IF
-THE UNIVERSITY OF CALIFORNIA HAS BEEN ADVISED OF THE POSSIBILITY OF
-SUCH DAMAGE.
+ IN NO EVENT SHALL THE UNIVERSITY OF CALIFORNIA BE LIABLE TO ANY PARTY
+ FOR DIRECT, INDIRECT, SPECIAL, INCIDENTAL, OR CONSEQUENTIAL DAMAGES
+ ARISING OUT OF THE USE OF THIS SOFTWARE AND ITS DOCUMENTATION, EVEN IF
+ THE UNIVERSITY OF CALIFORNIA HAS BEEN ADVISED OF THE POSSIBILITY OF
+ SUCH DAMAGE.
 
-THE UNIVERSITY OF CALIFORNIA SPECIFICALLY DISCLAIMS ANY WARRANTIES,
-INCLUDING, BUT NOT LIMITED TO, THE IMPLIED WARRANTIES OF
-MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE. THE SOFTWARE
-PROVIDED HEREUNDER IS ON AN "AS IS" BASIS, AND THE UNIVERSITY OF
-CALIFORNIA HAS NO OBLIGATION TO PROVIDE MAINTENANCE, SUPPORT, UPDATES,
-ENHANCEMENTS, OR MODIFICATIONS.
+ THE UNIVERSITY OF CALIFORNIA SPECIFICALLY DISCLAIMS ANY WARRANTIES,
+ INCLUDING, BUT NOT LIMITED TO, THE IMPLIED WARRANTIES OF
+ MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE. THE SOFTWARE
+ PROVIDED HEREUNDER IS ON AN "AS IS" BASIS, AND THE UNIVERSITY OF
+ CALIFORNIA HAS NO OBLIGATION TO PROVIDE MAINTENANCE, SUPPORT, UPDATES,
+ ENHANCEMENTS, OR MODIFICATIONS.
 
-PT_COPYRIGHT_VERSION_2
-COPYRIGHTENDKEY
+ PT_COPYRIGHT_VERSION_2
+ COPYRIGHTENDKEY
 
-*/
+ */
+
+import hla.rti.ArrayIndexOutOfBounds;
+import hla.rti.jlc.EncodingHelpers;
 
 import java.io.BufferedWriter;
 import java.util.LinkedList;
@@ -77,23 +81,23 @@ import ptolemy.kernel.util.NameDuplicationException;
 ////Locator
 
 /**
-* This is a wireless sensor node that reacts to an input event by transmitting
-* an output with the current location of this node and the time of the input.
-* The output is a record token with type {location={double}, time=double}. The
-* location is an array with two doubles representing the X and Y positions of
-* the sensor. The location of the sensor is determined by the _getLocation()
-* protected method, which in this base class returns the location of the icon
-* in the visual editor, which is determined from the _location attribute of the
-* actor. If there is no _location attribute, then an exception is thrown.
-* Derived classes may override this protected method to specify the location in
-* some other way (or in more dimensions).
-* 
-* @author Philip Baldwin, Xiaojun Liu and Edward A. Lee
-* @version $Id: Locator.java,v 1.22 2005/10/27 15:36:09 cxh Exp $
-* @since Ptolemy II 4.0
-* @Pt.ProposedRating Yellow (eal)
-* @Pt.AcceptedRating Red (pjb2e)
-*/
+ * This is a wireless sensor node that reacts to an input event by transmitting
+ * an output with the current location of this node and the time of the input.
+ * The output is a record token with type {location={double}, time=double}. The
+ * location is an array with two doubles representing the X and Y positions of
+ * the sensor. The location of the sensor is determined by the _getLocation()
+ * protected method, which in this base class returns the location of the icon
+ * in the visual editor, which is determined from the _location attribute of the
+ * actor. If there is no _location attribute, then an exception is thrown.
+ * Derived classes may override this protected method to specify the location in
+ * some other way (or in more dimensions).
+ * 
+ * @author Philip Baldwin, Xiaojun Liu and Edward A. Lee
+ * @version $Id: Locator.java,v 1.22 2005/10/27 15:36:09 cxh Exp $
+ * @since Ptolemy II 4.0
+ * @Pt.ProposedRating Yellow (eal)
+ * @Pt.AcceptedRating Red (pjb2e)
+ */
 public class MasterFederateActor extends TypedAtomicActor implements
 		PtolemyFederateActor {
 
@@ -134,8 +138,6 @@ public class MasterFederateActor extends TypedAtomicActor implements
 			throws NameDuplicationException, IllegalActionException {
 		super(container, name);
 
-		
-		
 		// Create and configure the ports.
 		input = new TypedIOPort(this, "signal", true, false);
 
@@ -152,8 +154,7 @@ public class MasterFederateActor extends TypedAtomicActor implements
 		outActivate = new TypedIOPort(this, "activate", false, true);
 
 		myTime = 0;
-		
-		
+
 		// rtiFederation = new SlaveFederate();
 
 		// Create and configure the parameters.
@@ -162,7 +163,6 @@ public class MasterFederateActor extends TypedAtomicActor implements
 		// federateName.setExpression("PtolemyFederate");
 
 		// Create and configure the ports.
-	
 
 		// Variables of BBB <=> Ptolemy Model
 
@@ -258,7 +258,6 @@ public class MasterFederateActor extends TypedAtomicActor implements
 
 	public TypedIOPort input;
 
-	
 	public TypedIOPort inbattery;
 	public TypedIOPort inTemperature;
 	public TypedIOPort inSensor1;
@@ -270,8 +269,6 @@ public class MasterFederateActor extends TypedAtomicActor implements
 	public TypedIOPort inRotate;
 	public TypedIOPort inActivate;
 
-	
-
 	public TypedIOPort outbattery;
 	public TypedIOPort outTemperature;
 	public TypedIOPort outSensor1;
@@ -282,7 +279,6 @@ public class MasterFederateActor extends TypedAtomicActor implements
 	public TypedIOPort outgoto;
 	public TypedIOPort outRotate;
 	public TypedIOPort outActivate;
-
 
 	/**
 	 * Name of the input channel. This is a string that defaults to
@@ -301,8 +297,6 @@ public class MasterFederateActor extends TypedAtomicActor implements
 	// /////////////////////////////////////////////////////////////////
 	// // public methods ////
 
-
-
 	/**
 	 * Generate an event on the <i>output</i> port that indicates the current
 	 * position and time of the last input on the <i>input</i> port. The value
@@ -313,66 +307,131 @@ public class MasterFederateActor extends TypedAtomicActor implements
 	public void fire() throws IllegalActionException {
 		super.fire();
 
-		Token battery = new StringToken("none");
-		Token temperature = new StringToken("none");
-		Token sensor1 = new StringToken("none");
-		Token sensor2 = new StringToken("none");
-		Token sensor3 = new StringToken("none");
-		Token gps = new StringToken("none");
-		Token compass = new StringToken("none");
-		Token gotoM = new StringToken("none");
-		Token rotate = new StringToken("none");
-		Token activate = new StringToken("none");
-
-		if (inbattery.getWidth()>0) {
-			// Otimiza, remove o inputValue
-			battery = inbattery.get(0);
-		}
-		if (inTemperature.getWidth()>0) {
-			temperature = inTemperature.get(0);
-		}
-		if (inSensor1.getWidth()>0) {
-			sensor1 = inSensor1.get(0);
-		}
-		if (inSensor2.getWidth()>0) {
-			sensor2 = inSensor2.get(0);
+		try {
+			Thread.sleep(10);
+		} catch (InterruptedException e1) {
+			// TODO Auto-generated catch block
+			e1.printStackTrace();
 		}
 
-		if (inSensor3.getWidth()>0) {
-			sensor3 = inSensor3.get(0);
+		if (attributesToSend != null) {
+
+			String[] v = new String[10];
+
+			StringToken battery, temperature, sensor1, sensor2, sensor3, gps, compass, gotoM, rotate, activate;
+
+			try {
+
+				System.out.println(" ----- Valores no Slave----- ");
+				for (int i = 0; i < v.length; i++) {
+					v[i] = EncodingHelpers.decodeString(attributesToSend
+							.getReceivedData().getValue(i));
+					System.out.println("Indice: " + i + "  Valor: " + v[i]);
+				}
+				System.out.println(" ----------------------------- ");
+				// v = value.split(":");
+				for (int i = 0; i < v.length; i++) {
+					v[i] = v[i].split(":")[1];
+					v[i] = v[i].replace("\"", "");
+					v[i] = v[i].replace("\\", "");
+					v[i] = v[i].replace(" ", "");
+					v[i] = v[i].replace(";", "");
+				}
+
+				battery = new StringToken(v[0]);
+				temperature = new StringToken(v[1]);
+				sensor1 = new StringToken(v[2]);
+				sensor2 = new StringToken(v[3]);
+				sensor3 = new StringToken(v[4]);
+				gps = new StringToken(v[8]);
+				compass = new StringToken(v[6]);
+				gotoM = new StringToken(v[7]);
+				rotate = new StringToken(v[5]);
+				activate = new StringToken(v[9]);
+
+				outbattery.send(0, battery);
+				outTemperature.send(0, temperature);
+				outSensor1.send(0, sensor1);
+				outSensor2.send(0, sensor2);
+				outSensor3.send(0, sensor3);
+				outGps.send(0, gps);
+				outgoto.send(0, gotoM);
+				outRotate.send(0, rotate);
+				outActivate.send(0, activate);
+
+			} catch (ArrayIndexOutOfBounds e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
+
+			}
+
+			attributesToSend = null;
+
+		}// angelo - estava comentado - novo modelo
+
+		if (input.getWidth()>0) {
+
+			Token battery = new StringToken("none");
+			Token temperature = new StringToken("none");
+			Token sensor1 = new StringToken("none");
+			Token sensor2 = new StringToken("none");
+			Token sensor3 = new StringToken("none");
+			Token gps = new StringToken("none");
+			Token compass = new StringToken("none");
+			Token gotoM = new StringToken("none");
+			Token rotate = new StringToken("none");
+			Token activate = new StringToken("none");
+
+			if (inbattery.getWidth() > 0) {
+				// Otimiza, remove o inputValue
+				battery = inbattery.get(0);
+			}
+			if (inTemperature.getWidth() > 0) {
+				temperature = inTemperature.get(0);
+			}
+			if (inSensor1.getWidth() > 0) {
+				sensor1 = inSensor1.get(0);
+			}
+			if (inSensor2.getWidth() > 0) {
+				sensor2 = inSensor2.get(0);
+			}
+
+			if (inSensor3.getWidth() > 0) {
+				sensor3 = inSensor3.get(0);
+			}
+
+			if (inGps.getWidth() > 0) {
+				gps = inGps.get(0);
+			}
+
+			if (inCompass.getWidth() > 0) {
+				compass = inCompass.get(0);
+			}
+
+			if (ingoto.getWidth() > 0) {
+				gotoM = ingoto.get(0);
+			}
+
+			if (inRotate.getWidth() > 0) {
+				rotate = inRotate.get(0);
+			}
+			if (inActivate.getWidth() > 0) {
+				activate = inActivate.get(0);
+			}
+
+			// Criando string para ser processada pelo Master Federate
+			StringToken value = new StringToken(battery + " - " + temperature
+					+ " - " + sensor1 + " - " + sensor2 + " - " + sensor3
+					+ " - " + gps + " - " + compass + " - " + gotoM + " - "
+					+ rotate + " - " + activate);
+
+			double timeValue = getDirector().getModelTime().getDoubleValue();
+			this.setValue(value);
+			this.setTime(timeValue);
+			hasDataToSend = true;
+
+			Token inputValue = input.get(0);
 		}
-
-		if (inGps.getWidth()>0) {
-			gps = inGps.get(0);
-		}
-
-		if (inCompass.getWidth()>0) {
-			compass = inCompass.get(0);
-		}
-
-		if (ingoto.getWidth()>0) {
-			gotoM = ingoto.get(0);
-		}
-
-		if (inRotate.getWidth()>0) {
-			rotate = inRotate.get(0);
-		}
-		if (inActivate.getWidth()>0) {
-			activate = inActivate.get(0);
-		}
-
-	
-		// Criando string para ser processada pelo Master Federate
-		StringToken value = new StringToken(battery + " - " + temperature + " - "
-				+ sensor1 + " - " + sensor2 + " - " + sensor3 + " - " + gps
-				+ " - " + compass + " - " + gotoM + " - " + rotate + " - "
-				+ activate);
-
-		double timeValue = getDirector().getModelTime().getDoubleValue();
-		this.setValue(value);
-		this.setTime(timeValue);
-		hasDataToSend = true;
-
 	}
 
 	/**

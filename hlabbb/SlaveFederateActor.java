@@ -262,11 +262,8 @@ public class SlaveFederateActor extends TypedAtomicActor implements
 			// TODO Auto-generated catch block
 			e1.printStackTrace();
 		}
-		// System.out.println("SlaveFederateActor - fire() at " +
-		// this.getDirector().getModelTime());
-
-		// angelo - mudar essa variavel - dados recebidos do master
-		// angelo - estava comentado - novo modelo
+			
+		
 		if (attributesToSend != null) {
 
 			String[] v = new String[10];
@@ -324,21 +321,67 @@ public class SlaveFederateActor extends TypedAtomicActor implements
 
 		if (input.hasToken(0)) {
 
+			Token battery = new StringToken("none");
+			Token temperature = new StringToken("none");
+			Token sensor1 = new StringToken("none");
+			Token sensor2 = new StringToken("none");
+			Token sensor3 = new StringToken("none");
+			Token gps = new StringToken("none");
+			Token compass = new StringToken("none");
+			Token gotoM = new StringToken("none");
+			Token rotate = new StringToken("none");
+			Token activate = new StringToken("none");
+
+			if (inbattery.getWidth()>0) {
+				// Otimiza, remove o inputValue
+				battery = inbattery.get(0);
+			}
+			if (inTemperature.getWidth()>0) {
+				temperature = inTemperature.get(0);
+			}
+			if (inSensor1.getWidth()>0) {
+				sensor1 = inSensor1.get(0);
+			}
+			if (inSensor2.getWidth()>0) {
+				sensor2 = inSensor2.get(0);
+			}
+
+			if (inSensor3.getWidth()>0) {
+				sensor3 = inSensor3.get(0);
+			}
+
+			if (inGps.getWidth()>0) {
+				gps = inGps.get(0);
+			}
+
+			if (inCompass.getWidth()>0) {
+				compass = inCompass.get(0);
+			}
+
+			if (ingoto.getWidth()>0) {
+				gotoM = ingoto.get(0);
+			}
+
+			if (inRotate.getWidth()>0) {
+				rotate = inRotate.get(0);
+			}
+			if (inActivate.getWidth()>0) {
+				activate = inActivate.get(0);
+			}
+
+		
+			// Criando string para ser processada pelo Master Federate
+			StringToken value = new StringToken(battery + " - " + temperature + " - "
+					+ sensor1 + " - " + sensor2 + " - " + sensor3 + " - " + gps
+					+ " - " + compass + " - " + gotoM + " - " + rotate + " - "
+					+ activate);
+
+			double timeValue = getDirector().getModelTime().getDoubleValue();
+			this.setValue(value);
+			this.setTime(timeValue);
+			hasDataToSend = true;
+
 			Token inputValue = input.get(0);
-			/*
-			 * StringToken t = (StringToken) StringToken.convert(inputValue);//
-			 * fazendo gambis StringToken string = StringToken.convert(t);
-			 * double timeValue = getDirector().getModelTime().getDoubleValue();
-			 * 
-			 * Parameter finalTime = (Parameter)getAttribute("timeWindow");
-			 * double finalT = 1.0 ;
-			 * 
-			 * 
-			 * if(aux1 < finalT){ aux1++; hasDataToSend = false; }else{ aux1 =
-			 * 0; this.setValue(new StringToken(""+string));
-			 * 
-			 * this.setTime(timeValue); hasDataToSend = true; }
-			 */
 		}
 	}
 
