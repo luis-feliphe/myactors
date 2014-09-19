@@ -134,6 +134,26 @@ public class MasterFederateActor extends TypedAtomicActor implements
 			throws NameDuplicationException, IllegalActionException {
 		super(container, name);
 
+		
+		
+		// Create and configure the ports.
+		input = new TypedIOPort(this, "signal", true, false);
+
+		// variaveis do .fed
+		outbattery = new TypedIOPort(this, "battery", false, true);
+		outTemperature = new TypedIOPort(this, "temperature", false, true);
+		outSensor1 = new TypedIOPort(this, "sensor1", false, true);
+		outSensor2 = new TypedIOPort(this, "sensor2", false, true);
+		outSensor3 = new TypedIOPort(this, "sensor3", false, true);
+		outGps = new TypedIOPort(this, "gps", false, true);
+		outCompass = new TypedIOPort(this, "compass", false, true);
+		outgoto = new TypedIOPort(this, "goto", false, true);
+		outRotate = new TypedIOPort(this, "rotate", false, true);
+		outActivate = new TypedIOPort(this, "activate", false, true);
+
+		myTime = 0;
+		
+		
 		// rtiFederation = new SlaveFederate();
 
 		// Create and configure the parameters.
@@ -162,7 +182,6 @@ public class MasterFederateActor extends TypedAtomicActor implements
 
 		// Modificando
 		// myValue.add(new StringToken(""));
-		myTime = 0;
 
 	}
 
@@ -237,6 +256,9 @@ public class MasterFederateActor extends TypedAtomicActor implements
 	 * pots used by HLA with BBB
 	 */
 
+	public TypedIOPort input;
+
+	
 	public TypedIOPort inbattery;
 	public TypedIOPort inTemperature;
 	public TypedIOPort inSensor1;
@@ -247,6 +269,20 @@ public class MasterFederateActor extends TypedAtomicActor implements
 	public TypedIOPort ingoto;
 	public TypedIOPort inRotate;
 	public TypedIOPort inActivate;
+
+	
+
+	public TypedIOPort outbattery;
+	public TypedIOPort outTemperature;
+	public TypedIOPort outSensor1;
+	public TypedIOPort outSensor2;
+	public TypedIOPort outSensor3;
+	public TypedIOPort outGps;
+	public TypedIOPort outCompass;
+	public TypedIOPort outgoto;
+	public TypedIOPort outRotate;
+	public TypedIOPort outActivate;
+
 
 	/**
 	 * Name of the input channel. This is a string that defaults to
@@ -265,61 +301,7 @@ public class MasterFederateActor extends TypedAtomicActor implements
 	// /////////////////////////////////////////////////////////////////
 	// // public methods ////
 
-	public String capturarEstatisticas() {
-		try {
-			Sigar sigar = new Sigar();
 
-			BufferedWriter arquivo;
-			String str = "";
-			CpuPerc cpu;
-			cpu = sigar.getCpuPerc();
-			Mem memory = sigar.getMem();
-
-			CpuPerc cpus[] = sigar.getCpuPercList();
-
-			double totalMemory = (double) memory.getTotal()
-					/ (1024 * 1024 * 1024);
-			double usedMemory = (double) memory.getUsed()
-					/ (1024 * 1024 * 1024); // vira GB - origianl eh bytes
-			double freeMemory = (double) memory.getFree()
-					/ (1024 * 1024 * 1024);
-			double usedMemoryPercent = (double) memory.getUsedPercent();
-
-			Runtime runtime = Runtime.getRuntime();
-			double totalMemoryJVM = (double) runtime.totalMemory()
-					/ (1024 * 1024); // valor utilizado pela JVM - em bytes
-			double freeMemoryJVM = (double) runtime.freeMemory()
-					/ (1024 * 1024);
-			double maxMemory = (double) runtime.maxMemory() / 1024;
-
-			String cpu_pc = CpuPerc.format(cpu.getUser() + cpu.getSys());
-			String cpu_jvm = CpuPerc.format(cpu.getSys());
-
-			String cpu_pc_0 = CpuPerc.format(cpus[0].getUser()
-					+ cpus[0].getSys());
-			String cpu_jvm_0 = CpuPerc.format(cpus[0].getSys());
-
-			String cpu_pc_1 = CpuPerc.format(cpus[1].getUser()
-					+ cpus[1].getSys());
-			String cpu_jvm_1 = CpuPerc.format(cpus[1].getSys());
-
-			str = usedMemoryPercent + "% - "
-					+ ((totalMemoryJVM - freeMemoryJVM) / totalMemoryJVM) * 100
-					+ "% - " + cpu_pc + " - " + cpu_jvm + "% - " + cpu_pc_0
-					+ " - " + cpu_jvm_0 + "% - " + cpu_pc_1 + " - " + cpu_jvm_1;
-
-			// arquivo = new BufferedWriter(new
-			// FileWriter("config/experimentos_mem_used.txt", true));
-			// arquivo.write(str);
-			// arquivo.newLine();
-			// arquivo.close();
-
-			return str;
-		} catch (Exception e1) {
-			e1.printStackTrace();
-			return null;
-		}
-	}
 
 	/**
 	 * Generate an event on the <i>output</i> port that indicates the current

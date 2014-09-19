@@ -27,6 +27,9 @@
  */
 package ptolemy.myactors.hlabbb;
 
+import java.util.LinkedList;
+import java.util.Queue;
+
 import hla.rti.ArrayIndexOutOfBounds;
 import hla.rti.jlc.EncodingHelpers;
 import ptolemy.actor.TypedAtomicActor;
@@ -66,7 +69,7 @@ public class SlaveFederateActor extends TypedAtomicActor implements
 
 	// angelo - mudei
 	// private IntToken myValue;
-	private StringToken myValue;
+	Queue<StringToken> myValue = new LinkedList();
 
 	private double myTime;
 
@@ -121,9 +124,21 @@ public class SlaveFederateActor extends TypedAtomicActor implements
 		outRotate = new TypedIOPort(this, "rotate", false, true);
 		outActivate = new TypedIOPort(this, "activate", false, true);
 
-		myValue = new StringToken("");
 		myTime = 0;
 
+		
+		inbattery = new TypedIOPort(this, "inBattery", true, false);
+		inTemperature = new TypedIOPort(this, "inTemperature", true, false);
+		inSensor1 = new TypedIOPort(this, "inSensor1", true, false);
+		inSensor2 = new TypedIOPort(this, "inSensor2", true, false);
+		inSensor3 = new TypedIOPort(this, "inSensor3", true, false);
+		inGps = new TypedIOPort(this, "inGps", true, false);
+		inCompass = new TypedIOPort(this, "inCompass", true, false);
+		ingoto = new TypedIOPort(this, "inGoto", true, false);
+		inRotate = new TypedIOPort(this, "inRotate", true, false);
+		inActivate = new TypedIOPort(this, "inActivate", true, false);
+
+		
 	}
 
 	// /////////////////////////////////////////////////////////////////
@@ -142,12 +157,22 @@ public class SlaveFederateActor extends TypedAtomicActor implements
 	 * @return the myValue
 	 */
 	public StringToken getValue() {
-		return myValue;
+		// return myValue;
+		return myValue.peek();
 	}
 
 	public StringToken getDataToSend() {
+
 		hasDataToSend = false;
-		return myValue;
+
+		String out = "";
+		for (StringToken valor : myValue) {
+			out += valor + " ; ";
+		}
+
+		myValue.clear();
+		return new StringToken(out);
+
 	}
 
 	/**
@@ -155,8 +180,10 @@ public class SlaveFederateActor extends TypedAtomicActor implements
 	 *            the myValue to set
 	 */
 	public void setValue(StringToken myValue) {
-		this.myValue = myValue;
+		// this.myValue = myValue;
+		this.myValue.add(myValue);
 	}
+
 
 	/**
 	 * @return the myTime
@@ -177,7 +204,6 @@ public class SlaveFederateActor extends TypedAtomicActor implements
 	 * Port that receives a trigger input that causes transmission of location
 	 * and time information on the <i>output</i> port.
 	 */
-	public TypedIOPort input;
 
 	/**
 	 * Name of the input channel. This is a string that defaults to
@@ -190,7 +216,8 @@ public class SlaveFederateActor extends TypedAtomicActor implements
 	 * <i>input</i> port. This has type {location={double}, time=double}, a
 	 * record token.
 	 */
-
+	public TypedIOPort input;
+	// Outputs of FED. File
 	public TypedIOPort outbattery;
 	public TypedIOPort outTemperature;
 	public TypedIOPort outSensor1;
@@ -201,7 +228,19 @@ public class SlaveFederateActor extends TypedAtomicActor implements
 	public TypedIOPort outgoto;
 	public TypedIOPort outRotate;
 	public TypedIOPort outActivate;
+	//inputs of fed file	
+	public TypedIOPort inbattery;
+	public TypedIOPort inTemperature;
+	public TypedIOPort inSensor1;
+	public TypedIOPort inSensor2;
+	public TypedIOPort inSensor3;
+	public TypedIOPort inGps;
+	public TypedIOPort inCompass;
+	public TypedIOPort ingoto;
+	public TypedIOPort inRotate;
+	public TypedIOPort inActivate;
 
+	
 	// private SlaveFederate rtiFederation;
 
 	// /////////////////////////////////////////////////////////////////
