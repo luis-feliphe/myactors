@@ -34,6 +34,7 @@ import hla.rti.ArrayIndexOutOfBounds;
 import hla.rti.jlc.EncodingHelpers;
 import ptolemy.actor.TypedAtomicActor;
 import ptolemy.actor.TypedIOPort;
+import ptolemy.data.DoubleToken;
 import ptolemy.data.StringToken;
 import ptolemy.data.Token;
 import ptolemy.kernel.CompositeEntity;
@@ -118,12 +119,12 @@ public class SlaveFederateActor extends TypedAtomicActor implements
 		outSensor1 = new TypedIOPort(this, "sensor1", false, true);
 		outSensor2 = new TypedIOPort(this, "sensor2", false, true);
 		outSensor3 = new TypedIOPort(this, "sensor3", false, true);
-		outGps = new TypedIOPort(this, "gps", false, true);
+		outGps = new TypedIOPort(this, "position", false, true);
 		outCompass = new TypedIOPort(this, "compass", false, true);
 		outgoto = new TypedIOPort(this, "goto", false, true);
 		outRotate = new TypedIOPort(this, "rotate", false, true);
 		outActivate = new TypedIOPort(this, "activate", false, true);
-
+		outGps.setMultiport(true);
 		myTime = 0;
 
 		
@@ -132,7 +133,8 @@ public class SlaveFederateActor extends TypedAtomicActor implements
 		inSensor1 = new TypedIOPort(this, "inSensor1", true, false);
 		inSensor2 = new TypedIOPort(this, "inSensor2", true, false);
 		inSensor3 = new TypedIOPort(this, "inSensor3", true, false);
-		inGps = new TypedIOPort(this, "inGps", true, false);
+		inGps = new TypedIOPort(this, "inPosition", true, false);
+
 		inCompass = new TypedIOPort(this, "inCompass", true, false);
 		ingoto = new TypedIOPort(this, "inGoto", true, false);
 		inRotate = new TypedIOPort(this, "inRotate", true, false);
@@ -273,20 +275,20 @@ public class SlaveFederateActor extends TypedAtomicActor implements
 
 			try {
 
-				System.out.println(" ----- Valores no Slave----- ");
+				//System.out.println(" ----- Valores no Slave----- ");
 				for (int i = 0; i < v.length; i++) {
 					v[i] = EncodingHelpers.decodeString(attributesToSend
 							.getReceivedData().getValue(i));
-					System.out.println("Indice: " + i + "  Valor: " + v[i]);
+					//System.out.println("Indice: " + i + "  Valor: " + v[i]);
 				}
-				System.out.println(" ----------------------------- ");
+				//System.out.println(" ----------------------------- ");
 				// v = value.split(":");
 				for (int i = 0; i < v.length; i++) {
 					v[i] = v[i].split(":")[1];
 					v[i] = v[i].replace("\"", "");
 					v[i] = v[i].replace("\\", "");
 					v[i] = v[i].replace(" ", "");
-					v[i] = v[i].replace(";", "");
+					//v[i] = v[i].replace(";", "");
 				}
 
 				battery = new StringToken(v[0]);
@@ -294,10 +296,13 @@ public class SlaveFederateActor extends TypedAtomicActor implements
 				sensor1 = new StringToken(v[2]);
 				sensor2 = new StringToken(v[3]);
 				sensor3 = new StringToken(v[4]);
-				gps = new StringToken(v[8]);
+				//
+				//String position [] = v[5].toString().split(";"); 
+				gps = new StringToken(v[5]);
+				//
 				compass = new StringToken(v[6]);
 				gotoM = new StringToken(v[7]);
-				rotate = new StringToken(v[5]);
+				rotate = new StringToken(v[8]);
 				activate = new StringToken(v[9]);
 
 				outbattery.send(0, battery);
@@ -305,7 +310,33 @@ public class SlaveFederateActor extends TypedAtomicActor implements
 				outSensor1.send(0, sensor1);
 				outSensor2.send(0, sensor2);
 				outSensor3.send(0, sensor3);
-				outGps.send(0, gps);
+				//outGps.send(0, gps);
+				// tratamento do gps para divisão em 3 partes x y e z
+				String xyz[] = gps.toString().split(";");
+				System.out.println("Valor antes de modificar = "+gps.toString());
+				for (int i = 0; i < xyz.length; i++) {
+					xyz[i] = xyz[i].replace("\"", "");
+					xyz[i] = xyz[i].replace("\"", "");
+					xyz[i] = xyz[i].replace("\"", "");
+					xyz[i] = xyz[i].replace("\'", "");
+					xyz[i] = xyz[i].replace("<", "");
+					xyz[i] = xyz[i].replace(">", "");
+					System.out.println("indice "+ i + " = "+ xyz[i]);
+				}
+				System.out.println(" \t--------");
+				
+				if (xyz.length ==3){
+				// tres saidas para o gps
+				outGps.send(0, new DoubleToken(xyz[0]));
+				outGps.send(1, new DoubleToken(xyz[1]));
+				outGps.send(2, new DoubleToken(xyz[2]));
+				}else if (xyz.length == 2){
+					outGps.send(0, new DoubleToken(xyz[0]));
+					outGps.send(1, new DoubleToken(xyz[1]));	
+				}else if (xyz.length == 1){
+					outGps.send(0, new DoubleToken(xyz[0]));
+				}
+				// ---
 				outgoto.send(0, gotoM);
 				outRotate.send(0, rotate);
 				outActivate.send(0, activate);

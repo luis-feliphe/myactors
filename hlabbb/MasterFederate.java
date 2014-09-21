@@ -14,7 +14,6 @@
  */
 package ptolemy.myactors.hlabbb;
 
-
 import hla.rti.AttributeHandleSet;
 import hla.rti.FederatesCurrentlyJoined;
 import hla.rti.FederationExecutionAlreadyExists;
@@ -133,7 +132,7 @@ public class MasterFederate extends SigarCommandBase implements PtolemyFederate 
 	 * of the federate. For a description of the basic flow of this federate,
 	 * see the class level comments
 	 */
-//	private OperatingSystemMXBean osMBean = null;
+	// private OperatingSystemMXBean osMBean = null;
 	private long nanoBefore, cpuBefore;
 
 	public void createFederate(String federateName, String federateFile)
@@ -205,7 +204,7 @@ public class MasterFederate extends SigarCommandBase implements PtolemyFederate 
 		// tell the RTI we are ready to move past the sync point and then wait
 		// until the federation has synchronized on
 		log("calling achieveSynchronizationPoint()");
-		//TODO APENAS REMOVIDO PARA TESTES EM PYTHON
+		// TODO APENAS REMOVIDO PARA TESTES EM PYTHON
 		achieveSynchronizationPoint();
 
 		// ///////////////////////////
@@ -549,7 +548,6 @@ public class MasterFederate extends SigarCommandBase implements PtolemyFederate 
 
 		String[] tokens = data.split(" - ");
 
-		
 		/*
 		 * Recebendo valores (Utilizar ordem crescente
 		 */
@@ -564,17 +562,16 @@ public class MasterFederate extends SigarCommandBase implements PtolemyFederate 
 		byte[] gotom = EncodingHelpers.encodeString("goto:" + tokens[7]);
 		byte[] rotate = EncodingHelpers.encodeString("rotate:" + tokens[8]);
 		byte[] activate = EncodingHelpers.encodeString("activate:" + tokens[9]);
-		
-		System.out.println("----- Mostrando valores -------");
-		for (int i = 0 ; i < tokens.length; i++ ){
-			System.out.println(tokens[i]);
-		}
-		System.out.println(" ----- Fim de valores ---------");
-		
+
+		/*
+		 * System.out.println("----- Mostrando valores -------"); for (int i = 0
+		 * ; i < tokens.length; i++ ){ System.out.println(tokens[i]); }
+		 * System.out.println(" ----- Fim de valores ---------");
+		 */
 		int classHandle = rtiamb.getObjectClass(objectHandle);
-/*
- * Adicionando valores recebidos a variavel attributes
- */
+		/*
+		 * Adicionando valores recebidos a variavel attributes
+		 */
 		attributes.add(rtiamb.getAttributeHandle("battery", classHandle),
 				battery);
 		attributes.add(rtiamb.getAttributeHandle("temperature", classHandle),
@@ -594,14 +591,14 @@ public class MasterFederate extends SigarCommandBase implements PtolemyFederate 
 		attributes.add(rtiamb.getAttributeHandle("activate", classHandle),
 				activate);
 
-		
 		/*
 		 * Enviando via HLA
 		 */
 		byte[] tag = EncodingHelpers.encodeString("hi!");
 		rtiamb.updateAttributeValues(objectHandle, attributes, tag);
-		CertiLogicalTime time = new CertiLogicalTime(fedamb.federateTime+ fedamb.federateLookahead);
-	
+		CertiLogicalTime time = new CertiLogicalTime(fedamb.federateTime
+				+ fedamb.federateLookahead);
+
 		rtiamb.updateAttributeValues(objectHandle, attributes, tag, time);
 
 	}
