@@ -390,7 +390,7 @@ public class MasterFederateActor extends TypedAtomicActor implements
 			if (inTemperature.getWidth() > 0) {
 				temperature = inTemperature.get(0);
 			}
-			if (inSensor1.getWidth() > 0) {
+			if (inSensor1.getWidth() > 0 && inSensor1.hasToken(0)) {
 				sensor1 = inSensor1.get(0);
 			}
 			if (inSensor2.getWidth() > 0) {
