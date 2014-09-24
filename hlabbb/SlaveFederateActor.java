@@ -313,6 +313,7 @@ public class SlaveFederateActor extends TypedAtomicActor implements
 				//outGps.send(0, gps);
 				// tratamento do gps para divisão em 3 partes x y e z
 				String xyz[] = gps.toString().split(";");
+				
 				System.out.println("Valor antes de modificar = "+gps.toString());
 				for (int i = 0; i < xyz.length; i++) {
 					xyz[i] = xyz[i].replace("\"", "");
