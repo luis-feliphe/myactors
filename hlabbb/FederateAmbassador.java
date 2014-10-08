@@ -181,7 +181,7 @@ public class FederateAmbassador extends NullFederateAmbassador
 
 	public void timeAdvanceGrant( LogicalTime theTime )  
 	{  
-		this.federateTime = ((CertiLogicalTime)theTime).getTime();  
+		this.federateTime = ((CertiLogicalTime)theTime).getTime(); 
 		this.isAdvancing = false; 
 		log("    +++   HLA - Logical Time avancou para " + federateTime);
 	}  

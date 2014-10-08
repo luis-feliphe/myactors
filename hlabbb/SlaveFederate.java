@@ -236,6 +236,9 @@ public class SlaveFederate extends SigarCommandBase implements PtolemyFederate {
 		// until the federation has synchronized on
 		log("calling achieveSynchronizationPoint()");
 		achieveSynchronizationPoint();
+		
+		
+		
 		// ///////////////////////////
 		// 6. enable time policies //
 		// ///////////////////////////
@@ -265,8 +268,10 @@ public class SlaveFederate extends SigarCommandBase implements PtolemyFederate {
 	public void sendData(String data) throws RTIexception {
 		// 9.1 update the attribute values of the instance //
 		// System.out.println("aaaaaaaa"); -ok
+		
+		
 		updateAttributeValues(data);// angelo - era objecthandle
-
+		advanceTime(1);
 		// 9.2 send an interaction
 		// sendInteraction(data); //angelo - comentei
 
@@ -377,10 +382,10 @@ public class SlaveFederate extends SigarCommandBase implements PtolemyFederate {
 
 	private void achieveSynchronizationPoint() throws RTIexception {
 		// Not present in Slave
-		// while( fedamb.isAnnounced == false ) {
-		// log("isAnnounced = false");
-		// ((CertiRtiAmbassador) rtiamb).tick2();
-		// }
+		 while( fedamb.isAnnounced == false ) {
+		 log("isAnnounced = false");
+		 ((CertiRtiAmbassador) rtiamb).tick2();
+		 }
 		//
 		rtiamb.synchronizationPointAchieved(READY_TO_RUN);
 		log("Achieved sync point: " + READY_TO_RUN
@@ -437,7 +442,6 @@ public class SlaveFederate extends SigarCommandBase implements PtolemyFederate {
 	 * about as other federates produce it.
 	 */
 	private void publishAndSubscribe() throws RTIexception {
-		System.out.println("ESTA CHEGANDO AO PUBLISH AND SUBSCRIBE");
 		// //////////////////////////////////////////
 		// publish all attributes of ObjectRoot.A //
 		// //////////////////////////////////////////
@@ -449,6 +453,7 @@ public class SlaveFederate extends SigarCommandBase implements PtolemyFederate {
 
 		int classHandle = rtiamb.getObjectClassHandle("ObjectRoot.robot");
 		// int classHandle = rtiamb.getObjectClassHandle( "ObjectRoot.string" );
+		int idHandle = rtiamb.getAttributeHandle("id", classHandle);
 		int batteryHandle = rtiamb.getAttributeHandle("battery", classHandle);
 		int temperatureHandle = rtiamb.getAttributeHandle("temperature", classHandle);
 		int sensor1Handle = rtiamb.getAttributeHandle("sensor1", classHandle);
@@ -467,6 +472,8 @@ public class SlaveFederate extends SigarCommandBase implements PtolemyFederate {
 				.createAttributeHandleSet();
 		
 		//adding handles
+		attributes.add(idHandle);
+
 		attributes.add(batteryHandle);
 		attributes.add(temperatureHandle);
 		attributes.add(sensor1Handle);
@@ -481,7 +488,6 @@ public class SlaveFederate extends SigarCommandBase implements PtolemyFederate {
 
 		// do the actual publication
 		rtiamb.publishObjectClass(classHandle, attributes);
-
 		// ///////////////////////////////////////////////
 		// subscribe to all attributes of ObjectRoot.A //
 		// ///////////////////////////////////////////////
@@ -489,7 +495,6 @@ public class SlaveFederate extends SigarCommandBase implements PtolemyFederate {
 		// created and altered in other federates, so we need to subscribe to it
 
 		rtiamb.subscribeObjectClassAttributes(classHandle, attributes);
-
 		// ///////////////////////////////////////////////////
 		// publish the interaction class InteractionRoot.X //
 		// ///////////////////////////////////////////////////
@@ -533,7 +538,6 @@ public class SlaveFederate extends SigarCommandBase implements PtolemyFederate {
 		/*
 		 * This part of code are comented cause Slave do not send data, but afoter this can change  
 		 */
-	System.out.println("SLAVE: UPDATE ATTRIBUTE VALUES");
 
 		SuppliedAttributes attributes = RtiFactoryFactory.getRtiFactory()
 				.createSuppliedAttributes();
@@ -544,28 +548,31 @@ public class SlaveFederate extends SigarCommandBase implements PtolemyFederate {
 		/*
 		 * Recebendo valores (Utilizar ordem crescente
 		 */
-		byte[] battery = EncodingHelpers.encodeString("battery:" + tokens[0]);
-		byte[] temperature = EncodingHelpers.encodeString("temperature:"
-				+ tokens[1]);
-		byte[] sensor1 = EncodingHelpers.encodeString("sensor1:" + tokens[2]);
-		byte[] sensor2 = EncodingHelpers.encodeString("sensor2:" + tokens[3]);
-		byte[] sensor3 = EncodingHelpers.encodeString("sensor3:" + tokens[4]);
-		byte[] gps = EncodingHelpers.encodeString("gps:" + tokens[5]);
-		byte[] compass = EncodingHelpers.encodeString("compass:" + tokens[6]);
-		byte[] gotom = EncodingHelpers.encodeString("goto:" + tokens[7]);
-		byte[] rotate = EncodingHelpers.encodeString("rotate:" + tokens[8]);
-		byte[] activate = EncodingHelpers.encodeString("activate:" + tokens[9]);
+		byte[] id = EncodingHelpers.encodeString("id:" + tokens[0]);
+
+		byte[] battery = EncodingHelpers.encodeString("battery:" + tokens[1]);
+		byte[] temperature = EncodingHelpers.encodeString("temperature:"+ tokens[2]);
+		byte[] sensor1 = EncodingHelpers.encodeString("sensor1:" + tokens[3]);
+		byte[] sensor2 = EncodingHelpers.encodeString("sensor2:" + tokens[4]);
+		byte[] sensor3 = EncodingHelpers.encodeString("sensor3:" + tokens[5]);
+		byte[] gps = EncodingHelpers.encodeString("gps:" + tokens[6]);
+		byte[] compass = EncodingHelpers.encodeString("compass:" + tokens[7]);
+		byte[] gotom = EncodingHelpers.encodeString("goto:" + tokens[8]);
+		byte[] rotate = EncodingHelpers.encodeString("rotate:" + tokens[9]);
+		byte[] activate = EncodingHelpers.encodeString("activate:" + tokens[10]);
 		
 		//System.out.println("----- Mostrando valores -------");
-		for (int i = 0 ; i < tokens.length; i++ ){
-			//System.out.println(tokens[i]);
-		}
+		//for (int i = 0 ; i < tokens.length; i++ ){
+		//	System.out.println(tokens[i]);
+		//}
 		//System.out.println(" ----- Fim de valores ---------");
 		
 		int classHandle = rtiamb.getObjectClass(objectHandle);
 /*
  * Adicionando valores recebidos a variavel attributes
  */
+		attributes.add(rtiamb.getAttributeHandle("id", classHandle),
+				id);
 		attributes.add(rtiamb.getAttributeHandle("battery", classHandle),
 				battery);
 		attributes.add(rtiamb.getAttributeHandle("temperature", classHandle),
@@ -605,6 +612,9 @@ public class SlaveFederate extends SigarCommandBase implements PtolemyFederate {
 	public void advanceTime(double timestep) throws RTIexception {
 		// request the advance
 		fedamb.isAdvancing = true;
+		
+		
+		
 		LogicalTime newTime = new CertiLogicalTime(fedamb.federateTime
 				+ timestep);
 		rtiamb.timeAdvanceRequest(newTime);
@@ -615,7 +625,7 @@ public class SlaveFederate extends SigarCommandBase implements PtolemyFederate {
 		// wait for the time advance to be granted. ticking will tell the
 		// LRC to start delivering callbacks to the federate
 		while (fedamb.isAdvancing) {
-			((CertiRtiAmbassador) rtiamb).tick2();
+			((CertiRtiAmbassador) rtiamb).tick();//tick2();
 		}
 	}
 
@@ -623,15 +633,17 @@ public class SlaveFederate extends SigarCommandBase implements PtolemyFederate {
 		// request the advance
 		fedamb.isAdvancing = true;
 		LogicalTime newTime = new CertiLogicalTime(nextStep);
+		
 		rtiamb.timeAdvanceRequest(newTime);
-
+		
 		// syso
 		// log( "Time Advanced to " + newTime );
 
 		// wait for the time advance to be granted. ticking will tell the
 		// LRC to start delivering callbacks to the federate
+		//modificado durante os testes
 		while (fedamb.isAdvancing) {
-			((CertiRtiAmbassador) rtiamb).tick2();
+			((CertiRtiAmbassador) rtiamb).tick();//tick2();
 		}
 	}
 

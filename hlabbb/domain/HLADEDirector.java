@@ -249,7 +249,6 @@ public abstract class HLADEDirector extends Director implements TimedDirector {
 		while (true) {
 			// Find the next actor to be fired.
 			Actor actorToFire = _getNextActorToFire();
-
 			// Check whether the actor to be fired is null.
 			// -- If the actor to be fired is null,
 			// There are two conditions that the actor to be fired
@@ -409,8 +408,7 @@ public abstract class HLADEDirector extends Director implements TimedDirector {
 
 					if (attrs != null) {
 						// syso
-						// System.out.println("  ### Evento HLA recebido em " +
-						// attrs.getReceivedTime().toString());
+						 //System.out.println("  ### Evento HLA recebido em " + attrs.getReceivedTime().toString());
 
 						if (actorToFire instanceof PtolemyFederateActor) {
 							PtolemyFederateActor fedActor = (PtolemyFederateActor) actorToFire;
@@ -420,6 +418,7 @@ public abstract class HLADEDirector extends Director implements TimedDirector {
 							// envia a interaction - comentei
 							// if(aux1 > 99){
 							// aux1 = 0;
+							
 							fedActor.updateAtributesToSend(attrs);
 							// }else{
 							// aux1++;
