@@ -408,7 +408,7 @@ public abstract class HLADEDirector extends Director implements TimedDirector {
 
 					if (attrs != null) {
 						// syso
-						 //System.out.println("  ### Evento HLA recebido em " + attrs.getReceivedTime().toString());
+						// System.out.println("  ### Evento HLA recebido em " + attrs.getReceivedTime().toString() );
 
 						if (actorToFire instanceof PtolemyFederateActor) {
 							PtolemyFederateActor fedActor = (PtolemyFederateActor) actorToFire;

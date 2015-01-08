@@ -54,8 +54,8 @@ import java.util.Calendar;
 import javax.management.MBeanServerConnection;
 import javax.swing.JOptionPane;
 
-import org.hyperic.sigar.CpuPerc;
-import org.hyperic.sigar.Mem;
+//import org.hyperic.sigar.CpuPerc;
+//import org.hyperic.sigar.Mem;
 import org.hyperic.sigar.SigarException;
 import org.hyperic.sigar.cmd.SigarCommandBase;
 
@@ -271,7 +271,8 @@ public class SlaveFederate extends SigarCommandBase implements PtolemyFederate {
 		
 		
 		updateAttributeValues(data);// angelo - era objecthandle
-		advanceTime(1);
+		//  --- Misterios da meia noite
+		//advanceTime(1);
 		// 9.2 send an interaction
 		// sendInteraction(data); //angelo - comentei
 
@@ -559,8 +560,8 @@ public class SlaveFederate extends SigarCommandBase implements PtolemyFederate {
 		byte[] compass = EncodingHelpers.encodeString("compass:" + tokens[7]);
 		byte[] gotom = EncodingHelpers.encodeString("goto:" + tokens[8]);
 		byte[] rotate = EncodingHelpers.encodeString("rotate:" + tokens[9]);
-		byte[] activate = EncodingHelpers.encodeString("activate:" + tokens[10]);
-		
+		//byte[] activate = EncodingHelpers.encodeString("activate:" + tokens[10]);
+		byte[] activate = EncodingHelpers.encodeString(tokens[10]);
 		//System.out.println("----- Mostrando valores -------");
 		//for (int i = 0 ; i < tokens.length; i++ ){
 		//	System.out.println(tokens[i]);
@@ -592,12 +593,13 @@ public class SlaveFederate extends SigarCommandBase implements PtolemyFederate {
 		attributes.add(rtiamb.getAttributeHandle("activate", classHandle),
 				activate);
 
-		
 		/*
 		 * Enviando via HLA
 		 */
 		byte[] tag = EncodingHelpers.encodeString("hi!");
-		rtiamb.updateAttributeValues(objectHandle, attributes, tag);
+		
+		// TODO:ESSA LINHA ABAIXO GERA INCONSISTENCIA DOS DADOS (UPDATE ATTRIBUTE VALUES REPTIDO GERA REFLECTEd REPETIDO 
+		//rtiamb.updateAttributeValues(objectHandle, attributes, tag);
 		CertiLogicalTime time = new CertiLogicalTime(fedamb.federateTime+ fedamb.federateLookahead);
 	
 		rtiamb.updateAttributeValues(objectHandle, attributes, tag, time);

@@ -130,7 +130,7 @@ public class FederateAmbassador extends NullFederateAmbassador
 
 	private void log( String message )  
 	{  
-//		System.out.println( "Ptolemy FederateAmbassador: " + message );  
+		System.out.println( "Ptolemy FederateAmbassador: " + message );  
 	}  
 
 	//////////////////////////////////////////////////////////////////////////  

@@ -27,16 +27,22 @@
  */
 package ptolemy.myactors.hlabbb;
 
+import java.io.BufferedWriter;
+import java.io.File;
+import java.io.FileWriter;
+import java.io.IOException;
 import java.util.Calendar;
 import java.util.GregorianCalendar;
 import java.util.LinkedList;
 import java.util.Queue;
+import java.util.Scanner;
 
 import hla.rti.ArrayIndexOutOfBounds;
 import hla.rti.jlc.EncodingHelpers;
 import ptolemy.actor.TypedAtomicActor;
 import ptolemy.actor.TypedIOPort;
 import ptolemy.data.DoubleToken;
+import ptolemy.data.IntToken;
 import ptolemy.data.StringToken;
 import ptolemy.data.Token;
 import ptolemy.data.expr.Parameter;
@@ -76,6 +82,7 @@ public class SlaveFederateActor extends TypedAtomicActor implements
 	// private IntToken myValue;
 	Queue<StringToken> myValue = new LinkedList();
 
+	private String timeLog= "";
 	private double myTime;
 
 	private double lastSentTime;
@@ -150,6 +157,18 @@ public class SlaveFederateActor extends TypedAtomicActor implements
 	// /////////////////////////////////////////////////////////////////
 	// // ports and parameters ////
 
+	public static void escritor(String data) throws IOException {
+		File arquivo = new File ("timeLog.txt"); 
+		FileWriter fw = new FileWriter (arquivo, true);
+		BufferedWriter buffWrite = new BufferedWriter(fw);
+		
+		buffWrite.append(data);
+		buffWrite.newLine();
+		buffWrite.flush();
+		buffWrite.close();
+	}
+	
+	
 	public boolean hasDataToSend() {
 
 		return hasDataToSend;
@@ -268,7 +287,15 @@ public class SlaveFederateActor extends TypedAtomicActor implements
 		int mseg = data.get(Calendar.MILLISECOND);
 		
 		System.out.println("Robô "+ robotId.getValueAsString() +" Time  = "+System.currentTimeMillis());
+		timeLog = String.valueOf(System.currentTimeMillis());
 		
+		// TODO Auto-generated method stub
+		try {
+			escritor(timeLog);
+		} catch (IOException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
 		
 		/*
 		 * try { Thread.sleep(10); } catch (InterruptedException e1) { // TODO
@@ -287,7 +314,7 @@ public class SlaveFederateActor extends TypedAtomicActor implements
 				for (int i = 0; i < v.length; i++) {
 					v[i] = EncodingHelpers.decodeString(attributesToSend
 							.getReceivedData().getValue(i));
-					// System.out.println("Indice: " + i + "  Valor: " + v[i]);
+				//	 System.out.println("Indice: " + i + "  Valor: " + v[i]);
 				}
 				// System.out.println(" ----------------------------- ");
 				// v = value.split(":");
@@ -313,14 +340,27 @@ public class SlaveFederateActor extends TypedAtomicActor implements
 				gotoM = new StringToken(v[8]);
 				rotate = new StringToken(v[6]);
 				activate = new StringToken(v[10]);
-
+				
+				
+				
+				
+				String teste = sensor2.toString().replace("\"", "");
+				teste = teste.replace("\"", "");
+				teste = teste.replace("\"", "");
+				teste= teste.replace("\'", "");
+				teste = teste.replace("<", "");
+				teste = teste.replace(">", "");
+				
+				
+				IntToken tmpSensor2  = new IntToken (Integer.parseInt(teste));
+				
 				if (id.toString().equalsIgnoreCase(robotId.getValueAsString())) {
 
 					outid.send(0, id);
 					outbattery.send(0, battery);
 					outTemperature.send(0, temperature);
 					outSensor1.send(0, sensor1);
-					outSensor2.send(0, sensor2);
+					outSensor2.send(0,tmpSensor2);// sensor2));
 					outSensor3.send(0, sensor3);
 					// outGps.send(0, gps);
 					// tratamento do gps para divisão em 3 partes x y e z
@@ -350,6 +390,7 @@ public class SlaveFederateActor extends TypedAtomicActor implements
 						// outGps.send(0, new DoubleToken(xyz[0]));
 					}
 					// ---
+				
 					outgoto.send(0, gotoM);
 					outRotate.send(0, rotate);
 					outActivate.send(0, activate);
@@ -480,8 +521,9 @@ public class SlaveFederateActor extends TypedAtomicActor implements
 	 */
 	@Override
 	public void terminate() {
-		// TODO Auto-generated method stub
+
 		super.terminate();
+		
 
 	}
 
