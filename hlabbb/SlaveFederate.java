@@ -140,7 +140,7 @@ public class SlaveFederate extends SigarCommandBase implements PtolemyFederate {
 	//private static SlaveManager sm = SlaveManager.getInstance();
 	
 
-	private static String federateName = "ReadyToRun";
+	private static String federateName = "2";
 
 	// ----------------------------------------------------------
 	// CONSTRUCTORS
@@ -244,6 +244,10 @@ public class SlaveFederate extends SigarCommandBase implements PtolemyFederate {
 		// ///////////////////////////
 		// in this section we enable/disable all time policies
 		// note that this step is optional!
+		
+		
+		
+		//comentando pela velocidade
 		enableTimePolicy();
 		log("Time Policy Enabled");
 

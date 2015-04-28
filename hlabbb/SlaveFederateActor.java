@@ -82,7 +82,7 @@ public class SlaveFederateActor extends TypedAtomicActor implements
 	// private IntToken myValue;
 	Queue<StringToken> myValue = new LinkedList();
 
-	private String timeLog= "";
+	private String timeLog = "";
 	private double myTime;
 
 	private double lastSentTime;
@@ -158,17 +158,16 @@ public class SlaveFederateActor extends TypedAtomicActor implements
 	// // ports and parameters ////
 
 	public static void escritor(String data) throws IOException {
-		File arquivo = new File ("timeLog.txt"); 
-		FileWriter fw = new FileWriter (arquivo, true);
+		File arquivo = new File("timeLog.txt");
+		FileWriter fw = new FileWriter(arquivo, true);
 		BufferedWriter buffWrite = new BufferedWriter(fw);
-		
+
 		buffWrite.append(data);
 		buffWrite.newLine();
 		buffWrite.flush();
 		buffWrite.close();
 	}
-	
-	
+
 	public boolean hasDataToSend() {
 
 		return hasDataToSend;
@@ -176,6 +175,28 @@ public class SlaveFederateActor extends TypedAtomicActor implements
 
 	public boolean hasDataToReceive() {
 		return hasDataToReceive;
+	}
+
+	private LinkedList<Long> tempo = new LinkedList<Long>();
+	long lastOcurrence = 0;
+
+	public void getTimeMilis() {
+		Calendar lCDateTime = Calendar.getInstance();
+		if (lastOcurrence == 0) {
+			lastOcurrence = lCDateTime.getTimeInMillis();
+		} else {
+			long temp = lCDateTime.getTimeInMillis();
+			tempo.add(temp - lastOcurrence);
+			lastOcurrence = temp;
+
+			long total = 0;
+			for (long i : tempo) {
+				total += i;
+			}
+			// System.out.println(" Valor médio - " + total/tempo.size());
+
+		}
+
 	}
 
 	/**
@@ -280,15 +301,16 @@ public class SlaveFederateActor extends TypedAtomicActor implements
 
 	public void fire() throws IllegalActionException {
 		super.fire();
-		Calendar data = Calendar.getInstance();
-		int hora = data.get(Calendar.HOUR_OF_DAY);
-		int min = data.get(Calendar.MINUTE);
-		int seg = data.get(Calendar.SECOND);
-		int mseg = data.get(Calendar.MILLISECOND);
-		
-		System.out.println("Robô "+ robotId.getValueAsString() +" Time  = "+System.currentTimeMillis());
-		timeLog = String.valueOf(System.currentTimeMillis());
-		
+		/*
+		 * Calendar data = Calendar.getInstance(); int hora =
+		 * data.get(Calendar.HOUR_OF_DAY); int min = data.get(Calendar.MINUTE);
+		 * int seg = data.get(Calendar.SECOND); int mseg =
+		 * data.get(Calendar.MILLISECOND);
+		 */
+		// System.out.println("Robô "+ robotId.getValueAsString()
+		// +" Time  = "+System.currentTimeMillis());
+		// timeLog = String.valueOf(System.currentTimeMillis());
+		getTimeMilis();
 		// TODO Auto-generated method stub
 		try {
 			escritor(timeLog);
@@ -296,25 +318,27 @@ public class SlaveFederateActor extends TypedAtomicActor implements
 			// TODO Auto-generated catch block
 			e.printStackTrace();
 		}
-		
+
 		/*
 		 * try { Thread.sleep(10); } catch (InterruptedException e1) { // TODO
 		 * Auto-generated catch block e1.printStackTrace(); }
 		 */
 
 		if (attributesToSend != null) {
-			System.out.println("Atributos recebidos via HLA");
+			// System.out.println("Atributos recebidos via HLA");
 			String[] v = new String[11];
 
-			StringToken id, battery, temperature, sensor1, sensor2, sensor3, gps, compass, gotoM, rotate, activate;
+			StringToken id, battery, temperature, sensor3, gps, compass, gotoM, rotate, activate;
+			DoubleToken sensor2;
+			DoubleToken sensor1;
 
 			try {
 
-				// System.out.println(" ----- Valores no Slave----- ");
+				//System.out.println(" ----- Valores no Slave----- ");
 				for (int i = 0; i < v.length; i++) {
 					v[i] = EncodingHelpers.decodeString(attributesToSend
 							.getReceivedData().getValue(i));
-				//	 System.out.println("Indice: " + i + "  Valor: " + v[i]);
+					//System.out.println("Indice: " + i + "  Valor: " + v[i]);
 				}
 				// System.out.println(" ----------------------------- ");
 				// v = value.split(":");
@@ -327,74 +351,80 @@ public class SlaveFederateActor extends TypedAtomicActor implements
 					// v[i] = v[i].replace(";", "");
 				}
 				id = new StringToken(v[0]);
-				battery = new StringToken(v[1]);
-				temperature = new StringToken(v[2]);
-				sensor1 = new StringToken(v[9]);
-				sensor2 = new StringToken(v[4]);
-				sensor3 = new StringToken(v[5]);
-				//
-				// String position [] = v[5].toString().split(";");
-				gps = new StringToken(v[3]);
-				//
-				compass = new StringToken(v[7]);
-				gotoM = new StringToken(v[8]);
-				rotate = new StringToken(v[6]);
-				activate = new StringToken(v[10]);
-				
-				
-				
-				
-				String teste = sensor2.toString().replace("\"", "");
-				teste = teste.replace("\"", "");
-				teste = teste.replace("\"", "");
-				teste= teste.replace("\'", "");
-				teste = teste.replace("<", "");
-				teste = teste.replace(">", "");
-				
-				
-				IntToken tmpSensor2  = new IntToken (Integer.parseInt(teste));
-				
-				if (id.toString().equalsIgnoreCase(robotId.getValueAsString())) {
+				// TESTANDO A PARADA DO ID
+				if (id.stringValue().contains(robotId.getValueAsString())) {
 
-					outid.send(0, id);
-					outbattery.send(0, battery);
-					outTemperature.send(0, temperature);
-					outSensor1.send(0, sensor1);
-					outSensor2.send(0,tmpSensor2);// sensor2));
-					outSensor3.send(0, sensor3);
-					// outGps.send(0, gps);
-					// tratamento do gps para divisão em 3 partes x y e z
-					String xyz[] = gps.toString().split(";");
+					battery = new StringToken(v[1]);
+					temperature = new StringToken(v[2]);
+					sensor1 = new DoubleToken(Double.parseDouble(v[10]));
+					sensor2 = new DoubleToken(Double.parseDouble(v[4]));// new
+																		// StringToken(v[4]);
+					sensor3 = new StringToken(v[9]);
+					//
+					// System.out.println("Valor do sensor 2= " +
+					// sensor2.toString());
+					// String position [] = v[5].toString().split(";");
+					gps = new StringToken(v[3]);
+					//
+					compass = new StringToken(v[7]);
+					gotoM = new StringToken(v[8]);
+					rotate = new StringToken(v[6]);
+					activate = new StringToken(v[5]);
 
-					
-					for (int i = 0; i < xyz.length; i++) {
-						xyz[i] = xyz[i].replace("\"", "");
-						xyz[i] = xyz[i].replace("\"", "");
-						xyz[i] = xyz[i].replace("\"", "");
-						xyz[i] = xyz[i].replace("\'", "");
-						xyz[i] = xyz[i].replace("<", "");
-						xyz[i] = xyz[i].replace(">", "");
-						System.out.println("indice " + i + " = " + xyz[i]);
+					String teste = sensor2.toString().replace("\"", "");
+					teste = teste.replace("\"", "");
+					teste = teste.replace("\"", "");
+					teste = teste.replace("\'", "");
+					teste = teste.replace("<", "");
+					teste = teste.replace(">", "");
+
+					// IntToken tmpSensor2 = new IntToken
+					// (Integer.parseInt(teste));
+
+					if (id.toString().contains(
+							robotId.getValueAsString())) {
+						outid.send(0, id);
+						outbattery.send(0, battery);
+						outTemperature.send(0, temperature);
+
+						outSensor1.send(0, sensor1);
+						outSensor2.send(0, sensor2);// sensor2));
+						// System.out.println("enviando a saida - " + sensor2 );
+						outSensor3.send(0, sensor3);
+						// outGps.send(0, gps);
+						// tratamento do gps para divisão em 3 partes x y e z
+						String xyz[] = gps.toString().split(";");
+
+						for (int i = 0; i < xyz.length; i++) {
+							xyz[i] = xyz[i].replace("\"", "");
+							xyz[i] = xyz[i].replace("\"", "");
+							xyz[i] = xyz[i].replace("\"", "");
+							xyz[i] = xyz[i].replace("\'", "");
+							xyz[i] = xyz[i].replace("<", "");
+							xyz[i] = xyz[i].replace(">", "");
+							// System.out.println("indice " + i + " = " +
+							// xyz[i]);
+						}
+						// System.out.println(" \t--------");
+						if (xyz.length == 3) {
+							// tres saidas para o gps
+							outGps.send(0, new DoubleToken(xyz[0]));
+							outGps.send(1, new DoubleToken(xyz[1]));
+							outGps.send(2, new DoubleToken(xyz[2]));
+						} else if (xyz.length == 2) {
+							System.out.println("entrou no 2");
+							outGps.send(0, new DoubleToken(xyz[0]));
+							outGps.send(1, new DoubleToken(xyz[1]));
+						} else if (xyz.length == 1) {
+							// outGps.send(0, new DoubleToken(xyz[0]));
+						}
+						// ---
+
+						outgoto.send(0, gotoM);
+						outRotate.send(0, rotate);
+						outActivate.send(0, activate);
 					}
-					System.out.println(" \t--------");
-
-					if (xyz.length == 3) {
-						// tres saidas para o gps
-						outGps.send(0, new DoubleToken(xyz[0]));
-						outGps.send(1, new DoubleToken(xyz[1]));
-						outGps.send(2, new DoubleToken(xyz[2]));
-					} else if (xyz.length == 2) {
-						outGps.send(0, new DoubleToken(xyz[0]));
-						outGps.send(1, new DoubleToken(xyz[1]));
-					} else if (xyz.length == 1) {
-						// outGps.send(0, new DoubleToken(xyz[0]));
-					}
-					// ---
-				
-					outgoto.send(0, gotoM);
-					outRotate.send(0, rotate);
-					outActivate.send(0, activate);
-				} 
+				}
 			} catch (ArrayIndexOutOfBounds e) {
 				// TODO Auto-generated catch block
 				e.printStackTrace();
@@ -404,7 +434,7 @@ public class SlaveFederateActor extends TypedAtomicActor implements
 			attributesToSend = null;
 
 		}// angelo - estava comentado - novo modelo
-
+		boolean temp = false;
 		if (input.hasToken(0)) {
 			Token id = new StringToken("none");
 
@@ -419,45 +449,56 @@ public class SlaveFederateActor extends TypedAtomicActor implements
 			Token rotate = new StringToken("none");
 			Token activate = new StringToken("none");
 
-			if (inid.getWidth() > 0) {
+			if (inid.getWidth() > 0&& inid.hasToken(0)) {
 				// Otimiza, remove o inputValue
 				id = inid.get(0);
 			}
 			if (inbattery.getWidth() > 0) {
 				// Otimiza, remove o inputValue
 				battery = inbattery.get(0);
+				temp = true;
 			}
 			if (inTemperature.getWidth() > 0) {
 				temperature = inTemperature.get(0);
+				temp = true;
 			}
 			if (inSensor1.getWidth() > 0) {
 				sensor1 = inSensor1.get(0);
+				temp = true;
 			}
-			if (inSensor2.getWidth() > 0) {
+			if (inSensor2.getWidth() > 0 && inSensor2.hasToken(0)) {
 				sensor2 = inSensor2.get(0);
+				temp = true;
 			}
 
 			if (inSensor3.getWidth() > 0) {
 				sensor3 = inSensor3.get(0);
+				temp = true;
 			}
 
 			if (inGps.getWidth() > 0) {
 				gps = inGps.get(0);
+				temp = true;
 			}
 
 			if (inCompass.getWidth() > 0) {
 				compass = inCompass.get(0);
+				temp = true;
 			}
 
-			if (ingoto.getWidth() > 0) {
+			if (ingoto.getWidth() > 0 && ingoto.hasToken(0)) {
 				gotoM = ingoto.get(0);
+				temp = true;
+				System.out.println("I Got Something: " + gotoM.toString());
 			}
 
 			if (inRotate.getWidth() > 0) {
 				rotate = inRotate.get(0);
+				temp = true;
 			}
 			if (inActivate.getWidth() > 0) {
 				activate = inActivate.get(0);
+				temp = true;
 			}
 
 			StringToken value = new StringToken(id + " - " + battery + " - "
@@ -465,12 +506,15 @@ public class SlaveFederateActor extends TypedAtomicActor implements
 					+ sensor3 + " - " + gps + " - " + compass + " - " + gotoM
 					+ " - " + rotate + " - " + activate);
 
-			double timeValue = getDirector().getModelTime().getDoubleValue();
-			this.setValue(value);
-			this.setTime(timeValue);
-			hasDataToSend = true;
+			if (temp) {
+				double timeValue = getDirector().getModelTime()
+						.getDoubleValue();
+				this.setValue(value);
+				this.setTime(timeValue);
+				hasDataToSend = true;
 
-			Token inputValue = input.get(0);
+				Token inputValue = input.get(0);
+			}
 
 		}
 	}
@@ -523,7 +567,6 @@ public class SlaveFederateActor extends TypedAtomicActor implements
 	public void terminate() {
 
 		super.terminate();
-		
 
 	}
 
