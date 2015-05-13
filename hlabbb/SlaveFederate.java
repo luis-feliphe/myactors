@@ -140,7 +140,7 @@ public class SlaveFederate extends SigarCommandBase implements PtolemyFederate {
 	//private static SlaveManager sm = SlaveManager.getInstance();
 	
 
-	private static String federateName = "2";
+	private static String federateName = "3";
 
 	// ----------------------------------------------------------
 	// CONSTRUCTORS

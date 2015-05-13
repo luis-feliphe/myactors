@@ -28,6 +28,7 @@
 package ptolemy.myactors.hlabbb;
 
 import java.io.BufferedWriter;
+
 import java.io.File;
 import java.io.FileWriter;
 import java.io.IOException;
@@ -334,11 +335,11 @@ public class SlaveFederateActor extends TypedAtomicActor implements
 
 			try {
 
-				//System.out.println(" ----- Valores no Slave----- ");
+				// System.out.println(" ----- Valores no Slave----- ");
 				for (int i = 0; i < v.length; i++) {
 					v[i] = EncodingHelpers.decodeString(attributesToSend
 							.getReceivedData().getValue(i));
-					//System.out.println("Indice: " + i + "  Valor: " + v[i]);
+					// System.out.println("Indice: " + i + "  Valor: " + v[i]);
 				}
 				// System.out.println(" ----------------------------- ");
 				// v = value.split(":");
@@ -352,8 +353,10 @@ public class SlaveFederateActor extends TypedAtomicActor implements
 				}
 				id = new StringToken(v[0]);
 				// TESTANDO A PARADA DO ID
-				if (id.stringValue().contains(robotId.getValueAsString())) {
 
+				if (id.stringValue().equals(
+						robotId.getValueAsString().replace("\"", "")
+								.replace("\"", ""))) {
 					battery = new StringToken(v[1]);
 					temperature = new StringToken(v[2]);
 					sensor1 = new DoubleToken(Double.parseDouble(v[10]));
@@ -381,49 +384,45 @@ public class SlaveFederateActor extends TypedAtomicActor implements
 					// IntToken tmpSensor2 = new IntToken
 					// (Integer.parseInt(teste));
 
-					if (id.toString().contains(
-							robotId.getValueAsString())) {
-						outid.send(0, id);
-						outbattery.send(0, battery);
-						outTemperature.send(0, temperature);
+					outid.send(0, id);
+					outbattery.send(0, battery);
+					outTemperature.send(0, temperature);
 
-						outSensor1.send(0, sensor1);
-						outSensor2.send(0, sensor2);// sensor2));
-						// System.out.println("enviando a saida - " + sensor2 );
-						outSensor3.send(0, sensor3);
-						// outGps.send(0, gps);
-						// tratamento do gps para divisão em 3 partes x y e z
-						String xyz[] = gps.toString().split(";");
+					outSensor1.send(0, sensor1);
+					outSensor2.send(0, sensor2);// sensor2));
+					outSensor3.send(0, sensor3);
+					// outGps.send(0, gps);
+					// tratamento do gps para divisão em 3 partes x y e z
+					String xyz[] = gps.toString().split(";");
 
-						for (int i = 0; i < xyz.length; i++) {
-							xyz[i] = xyz[i].replace("\"", "");
-							xyz[i] = xyz[i].replace("\"", "");
-							xyz[i] = xyz[i].replace("\"", "");
-							xyz[i] = xyz[i].replace("\'", "");
-							xyz[i] = xyz[i].replace("<", "");
-							xyz[i] = xyz[i].replace(">", "");
-							// System.out.println("indice " + i + " = " +
-							// xyz[i]);
-						}
-						// System.out.println(" \t--------");
-						if (xyz.length == 3) {
-							// tres saidas para o gps
-							outGps.send(0, new DoubleToken(xyz[0]));
-							outGps.send(1, new DoubleToken(xyz[1]));
-							outGps.send(2, new DoubleToken(xyz[2]));
-						} else if (xyz.length == 2) {
-							System.out.println("entrou no 2");
-							outGps.send(0, new DoubleToken(xyz[0]));
-							outGps.send(1, new DoubleToken(xyz[1]));
-						} else if (xyz.length == 1) {
-							// outGps.send(0, new DoubleToken(xyz[0]));
-						}
-						// ---
-
-						outgoto.send(0, gotoM);
-						outRotate.send(0, rotate);
-						outActivate.send(0, activate);
+					for (int i = 0; i < xyz.length; i++) {
+						xyz[i] = xyz[i].replace("\"", "");
+						xyz[i] = xyz[i].replace("\"", "");
+						xyz[i] = xyz[i].replace("\"", "");
+						xyz[i] = xyz[i].replace("\'", "");
+						xyz[i] = xyz[i].replace("<", "");
+						xyz[i] = xyz[i].replace(">", "");
+						// System.out.println("indice " + i + " = " +
+						// xyz[i]);
 					}
+					// System.out.println(" \t--------");
+					if (xyz.length == 3) {
+						// tres saidas para o gps
+						outGps.send(0, new DoubleToken(xyz[0]));
+						outGps.send(1, new DoubleToken(xyz[1]));
+						outGps.send(2, new DoubleToken(xyz[2]));
+					} else if (xyz.length == 2) {
+						outGps.send(0, new DoubleToken(xyz[0]));
+						outGps.send(1, new DoubleToken(xyz[1]));
+					} else if (xyz.length == 1) {
+						// outGps.send(0, new DoubleToken(xyz[0]));
+					}
+					// ---
+
+					outgoto.send(0, gotoM);
+					outRotate.send(0, rotate);
+					outActivate.send(0, activate);
+
 				}
 			} catch (ArrayIndexOutOfBounds e) {
 				// TODO Auto-generated catch block
@@ -449,18 +448,16 @@ public class SlaveFederateActor extends TypedAtomicActor implements
 			Token rotate = new StringToken("none");
 			Token activate = new StringToken("none");
 
-			if (inid.getWidth() > 0&& inid.hasToken(0)) {
+			if (inid.getWidth() > 0 && inid.hasToken(0)) {
 				// Otimiza, remove o inputValue
 				id = inid.get(0);
 			}
 			if (inbattery.getWidth() > 0) {
 				// Otimiza, remove o inputValue
 				battery = inbattery.get(0);
-				temp = true;
 			}
 			if (inTemperature.getWidth() > 0) {
 				temperature = inTemperature.get(0);
-				temp = true;
 			}
 			if (inSensor1.getWidth() > 0) {
 				sensor1 = inSensor1.get(0);
@@ -478,27 +475,22 @@ public class SlaveFederateActor extends TypedAtomicActor implements
 
 			if (inGps.getWidth() > 0) {
 				gps = inGps.get(0);
-				temp = true;
 			}
 
 			if (inCompass.getWidth() > 0) {
 				compass = inCompass.get(0);
-				temp = true;
 			}
 
 			if (ingoto.getWidth() > 0 && ingoto.hasToken(0)) {
 				gotoM = ingoto.get(0);
 				temp = true;
-				System.out.println("I Got Something: " + gotoM.toString());
 			}
 
 			if (inRotate.getWidth() > 0) {
 				rotate = inRotate.get(0);
-				temp = true;
 			}
-			if (inActivate.getWidth() > 0) {
+			if (inActivate.getWidth() > 0 && inActivate.hasToken(0)) {
 				activate = inActivate.get(0);
-				temp = true;
 			}
 
 			StringToken value = new StringToken(id + " - " + battery + " - "
@@ -506,16 +498,16 @@ public class SlaveFederateActor extends TypedAtomicActor implements
 					+ sensor3 + " - " + gps + " - " + compass + " - " + gotoM
 					+ " - " + rotate + " - " + activate);
 
-			if (temp) {
+			if (!gotoM.toString().contains("none")) {
 				double timeValue = getDirector().getModelTime()
 						.getDoubleValue();
 				this.setValue(value);
 				this.setTime(timeValue);
 				hasDataToSend = true;
 
-				Token inputValue = input.get(0);
+				
 			}
-
+			Token inputValue = input.get(0);
 		}
 	}
 
