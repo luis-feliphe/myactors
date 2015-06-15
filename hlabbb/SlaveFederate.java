@@ -134,13 +134,13 @@ public class SlaveFederate extends SigarCommandBase implements PtolemyFederate {
 
 	/*
 	 * Quando for executar mais de um slave no mesmo modelo, este nome a seguir
-	 * deve ser diferente. E o �ltimo slave a ser executado deve receber o nome
+	 * deve ser diferente. E o ultimo slave a ser executado deve receber o nome
 	 * ReadyToRun
 	 */
 	//private static SlaveManager sm = SlaveManager.getInstance();
 	
 
-	private static String federateName = "3";
+	private static String federateName = "1";
 
 	// ----------------------------------------------------------
 	// CONSTRUCTORS
@@ -456,7 +456,7 @@ public class SlaveFederate extends SigarCommandBase implements PtolemyFederate {
 
 		// get all the handle information for the attributes of ObjectRoot.A
 
-		int classHandle = rtiamb.getObjectClassHandle("ObjectRoot.robot");
+		int classHandle = rtiamb.getObjectClassHandle("ObjectRoot.robot"+ federateName);
 		// int classHandle = rtiamb.getObjectClassHandle( "ObjectRoot.string" );
 		int idHandle = rtiamb.getAttributeHandle("id", classHandle);
 		int batteryHandle = rtiamb.getAttributeHandle("battery", classHandle);
@@ -485,7 +485,7 @@ public class SlaveFederate extends SigarCommandBase implements PtolemyFederate {
 		attributes.add(sensor2Handle);
 		attributes.add(sensor3Handle);
 		attributes.add(gpsHandle);
-		attributes.add(gpsHandle);
+//		attributes.add(gpsHandle);
 		attributes.add(compassHandle);
 		attributes.add(gotoHandle);
 		attributes.add(rotateHandle);
@@ -526,7 +526,7 @@ public class SlaveFederate extends SigarCommandBase implements PtolemyFederate {
 	 * simulation, we will update the attribute values for this instance
 	 */
 	private int registerObject() throws RTIexception {
-		int classHandle = rtiamb.getObjectClassHandle("ObjectRoot.robot");
+		int classHandle = rtiamb.getObjectClassHandle("ObjectRoot.robot"+federateName);
 		// int classHandle = rtiamb.getObjectClassHandle("InteractionRoot.X");
 		return rtiamb.registerObjectInstance(classHandle);
 	}
@@ -541,7 +541,7 @@ public class SlaveFederate extends SigarCommandBase implements PtolemyFederate {
 	 */
 	private void updateAttributeValues(String data) throws RTIexception {
 		/*
-		 * This part of code are comented cause Slave do not send data, but afoter this can change  
+		 * This part of code are comented cause Slave do not send data, but after this can change  
 		 */
 
 		SuppliedAttributes attributes = RtiFactoryFactory.getRtiFactory()
@@ -576,24 +576,17 @@ public class SlaveFederate extends SigarCommandBase implements PtolemyFederate {
 /*
  * Adicionando valores recebidos a variavel attributes
  */
-		attributes.add(rtiamb.getAttributeHandle("id", classHandle),
-				id);
-		attributes.add(rtiamb.getAttributeHandle("battery", classHandle),
-				battery);
-		attributes.add(rtiamb.getAttributeHandle("temperature", classHandle),
-				temperature);
-		attributes.add(rtiamb.getAttributeHandle("sensor1", classHandle),
-				sensor1);
-		attributes.add(rtiamb.getAttributeHandle("sensor2", classHandle),
-				sensor2);
-		attributes.add(rtiamb.getAttributeHandle("sensor3", classHandle),
-				sensor3);
+		attributes.add(rtiamb.getAttributeHandle("id", classHandle),id);
+		attributes.add(rtiamb.getAttributeHandle("battery", classHandle),battery);
+		attributes.add(rtiamb.getAttributeHandle("temperature", classHandle),	temperature);
+		attributes.add(rtiamb.getAttributeHandle("sensor1", classHandle),sensor1);
+		attributes.add(rtiamb.getAttributeHandle("sensor2", classHandle),sensor2);
+		attributes.add(rtiamb.getAttributeHandle("sensor3", classHandle),sensor3);
 		attributes.add(rtiamb.getAttributeHandle("gps", classHandle), gps);
-		attributes.add(rtiamb.getAttributeHandle("compass", classHandle),
-				compass);
+		attributes.add(rtiamb.getAttributeHandle("compass", classHandle), compass);
 		attributes.add(rtiamb.getAttributeHandle("goto", classHandle), gotom);
-		attributes
-				.add(rtiamb.getAttributeHandle("rotate", classHandle), rotate);
+		attributes.add(rtiamb.getAttributeHandle("rotate", classHandle), rotate);
+		//TODO : FEITA ESSA MUGANGA AQUI PRA VER SE ERA AQUI O ERRO
 		attributes.add(rtiamb.getAttributeHandle("activate", classHandle),
 				activate);
 

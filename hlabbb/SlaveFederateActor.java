@@ -121,6 +121,8 @@ public class SlaveFederateActor extends TypedAtomicActor implements
 		// robotId.setExpression("");
 		robotId = new StringParameter(this, "robot id");
 		robotId.setExpression("1");
+		robotIdRecv = new StringParameter(this, "Receive From");
+		robotIdRecv.setExpression("1");
 
 		// Create and configure the ports.
 		input = new TypedIOPort(this, "signal", true, false);
@@ -257,6 +259,7 @@ public class SlaveFederateActor extends TypedAtomicActor implements
 	 */
 	// public StringParameter federateName;
 	public StringParameter robotId;
+	public StringParameter robotIdRecv;
 	/**
 	 * Port that transmits the current location and the time of the event on the
 	 * <i>input</i> port. This has type {location={double}, time=double}, a
@@ -353,10 +356,12 @@ public class SlaveFederateActor extends TypedAtomicActor implements
 				}
 				id = new StringToken(v[0]);
 				// TESTANDO A PARADA DO ID
+				 System.out.println(" ID : " + v[0]+"  Valor: " + v[3]);
 
 				if (id.stringValue().equals(
-						robotId.getValueAsString().replace("\"", "")
+						robotIdRecv.getValueAsString().replace("\"", "")
 								.replace("\"", ""))) {
+
 					battery = new StringToken(v[1]);
 					temperature = new StringToken(v[2]);
 					sensor1 = new DoubleToken(Double.parseDouble(v[10]));
@@ -394,7 +399,7 @@ public class SlaveFederateActor extends TypedAtomicActor implements
 					// outGps.send(0, gps);
 					// tratamento do gps para divisão em 3 partes x y e z
 					String xyz[] = gps.toString().split(";");
-
+					// System.out.println(gps.toString());
 					for (int i = 0; i < xyz.length; i++) {
 						xyz[i] = xyz[i].replace("\"", "");
 						xyz[i] = xyz[i].replace("\"", "");
@@ -505,7 +510,6 @@ public class SlaveFederateActor extends TypedAtomicActor implements
 				this.setTime(timeValue);
 				hasDataToSend = true;
 
-				
 			}
 			Token inputValue = input.get(0);
 		}
