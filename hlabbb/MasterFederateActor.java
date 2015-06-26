@@ -70,8 +70,10 @@ import org.hyperic.sigar.Sigar;
 
 import ptolemy.actor.TypedAtomicActor;
 import ptolemy.actor.TypedIOPort;
+import ptolemy.data.DoubleToken;
 import ptolemy.data.StringToken;
 import ptolemy.data.Token;
+import ptolemy.data.expr.StringParameter;
 import ptolemy.kernel.CompositeEntity;
 import ptolemy.kernel.util.IllegalActionException;
 import ptolemy.kernel.util.Location;
@@ -138,40 +140,41 @@ public class MasterFederateActor extends TypedAtomicActor implements
 			throws NameDuplicationException, IllegalActionException {
 		super(container, name);
 
+		// rtiFederation = new SlaveFederate();
+
+		// Create and configure the parameters.
+		// robotId.setExpression("");
+		robotId = new StringParameter(this, "robot id");
+		robotId.setExpression("1");
+		robotIdRecv = new StringParameter(this, "Receive From");
+		robotIdRecv.setExpression("1");
+
 		// Create and configure the ports.
 		input = new TypedIOPort(this, "signal", true, false);
 
 		// variaveis do .fed
+		outid = new TypedIOPort(this, "id", false, true);
 		outbattery = new TypedIOPort(this, "battery", false, true);
 		outTemperature = new TypedIOPort(this, "temperature", false, true);
 		outSensor1 = new TypedIOPort(this, "sensor1", false, true);
 		outSensor2 = new TypedIOPort(this, "sensor2", false, true);
 		outSensor3 = new TypedIOPort(this, "sensor3", false, true);
-		outGps = new TypedIOPort(this, "gps", false, true);
+		outGps = new TypedIOPort(this, "position", false, true);
 		outCompass = new TypedIOPort(this, "compass", false, true);
 		outgoto = new TypedIOPort(this, "goto", false, true);
 		outRotate = new TypedIOPort(this, "rotate", false, true);
 		outActivate = new TypedIOPort(this, "activate", false, true);
-
+		outGps.setMultiport(true);
 		myTime = 0;
 
-		// rtiFederation = new SlaveFederate();
-
-		// Create and configure the parameters.
-
-		// federateName = new StringParameter(this, "federateName");
-		// federateName.setExpression("PtolemyFederate");
-
-		// Create and configure the ports.
-
-		// Variables of BBB <=> Ptolemy Model
-
+		inid = new TypedIOPort(this, "inid", true, false);
 		inbattery = new TypedIOPort(this, "inBattery", true, false);
 		inTemperature = new TypedIOPort(this, "inTemperature", true, false);
 		inSensor1 = new TypedIOPort(this, "inSensor1", true, false);
 		inSensor2 = new TypedIOPort(this, "inSensor2", true, false);
 		inSensor3 = new TypedIOPort(this, "inSensor3", true, false);
-		inGps = new TypedIOPort(this, "inGps", true, false);
+		inGps = new TypedIOPort(this, "inPosition", true, false);
+
 		inCompass = new TypedIOPort(this, "inCompass", true, false);
 		ingoto = new TypedIOPort(this, "inGoto", true, false);
 		inRotate = new TypedIOPort(this, "inRotate", true, false);
@@ -189,12 +192,8 @@ public class MasterFederateActor extends TypedAtomicActor implements
 	// // ports and parameters ////
 
 	public boolean hasDataToSend() {
-		if (myValue.size() == 0)
-			return false;
-		else
-			return true;
 
-		// return hasDataToSend;
+		return hasDataToSend;
 	}
 
 	public boolean hasDataToReceive() {
@@ -253,22 +252,21 @@ public class MasterFederateActor extends TypedAtomicActor implements
 	 */
 
 	/**
-	 * pots used by HLA with BBB
+	 * Name of the input channel. This is a string that defaults to
+	 * "InputChannel".
+	 */
+	// public StringParameter federateName;
+	public StringParameter robotId;
+	public StringParameter robotIdRecv;
+	/**
+	 * Port that transmits the current location and the time of the event on the
+	 * <i>input</i> port. This has type {location={double}, time=double}, a
+	 * record token.
 	 */
 
 	public TypedIOPort input;
-
-	public TypedIOPort inbattery;
-	public TypedIOPort inTemperature;
-	public TypedIOPort inSensor1;
-	public TypedIOPort inSensor2;
-	public TypedIOPort inSensor3;
-	public TypedIOPort inGps;
-	public TypedIOPort inCompass;
-	public TypedIOPort ingoto;
-	public TypedIOPort inRotate;
-	public TypedIOPort inActivate;
-
+	// Outputs of FED. File
+	public TypedIOPort outid;
 	public TypedIOPort outbattery;
 	public TypedIOPort outTemperature;
 	public TypedIOPort outSensor1;
@@ -279,18 +277,18 @@ public class MasterFederateActor extends TypedAtomicActor implements
 	public TypedIOPort outgoto;
 	public TypedIOPort outRotate;
 	public TypedIOPort outActivate;
-
-	/**
-	 * Name of the input channel. This is a string that defaults to
-	 * "InputChannel".
-	 */
-	// public StringParameter federateName;
-
-	/**
-	 * Port that transmits the current location and the time of the event on the
-	 * <i>input</i> port. This has type {location={double}, time=double}, a
-	 * record token.
-	 */
+	// inputs of fed file
+	public TypedIOPort inid;
+	public TypedIOPort inbattery;
+	public TypedIOPort inTemperature;
+	public TypedIOPort inSensor1;
+	public TypedIOPort inSensor2;
+	public TypedIOPort inSensor3;
+	public TypedIOPort inGps;
+	public TypedIOPort inCompass;
+	public TypedIOPort ingoto;
+	public TypedIOPort inRotate;
+	public TypedIOPort inActivate;
 
 	// private SlaveFederate rtiFederation;
 
@@ -306,60 +304,112 @@ public class MasterFederateActor extends TypedAtomicActor implements
 
 	public void fire() throws IllegalActionException {
 		super.fire();
-/*
-		try {
-			Thread.sleep(10);
-		} catch (InterruptedException e1) {
-			// TODO Auto-generated catch block
-			e1.printStackTrace();
-		}
-*/
+		/*
+		 * try { Thread.sleep(10); } catch (InterruptedException e1) { // TODO
+		 * Auto-generated catch block e1.printStackTrace(); }
+		 */
 		System.out.println("FIRE (MASTER)");
 		if (attributesToSend != null) {
-			System.out.println("ATRIBUTES TO SEND");
-			String[] v = new String[10];
+			System.out.println("Atributos recebidos via HLA");
+			String[] v = new String[11];
 
-			StringToken battery, temperature, sensor1, sensor2, sensor3, gps, compass, gotoM, rotate, activate;
+			StringToken id, battery, temperature, sensor3, gps, compass, gotoM, rotate, activate;
+			StringToken sensor2;
+			StringToken sensor1;
 
 			try {
 
-				//System.out.println(" ----- Valores no Slave----- ");
+				// System.out.println(" ----- Valores no Slave----- ");
 				for (int i = 0; i < v.length; i++) {
 					v[i] = EncodingHelpers.decodeString(attributesToSend
 							.getReceivedData().getValue(i));
-					//System.out.println("Indice: " + i + "  Valor: " + v[i]);
+					System.out.println("Indice: " + i + "  Valor: " + v[i]);
 				}
-				//System.out.println(" ----------------------------- ");
+				// System.out.println(" ----------------------------- ");
 				// v = value.split(":");
 				for (int i = 0; i < v.length; i++) {
-					v[i] = v[i].split(":")[1];
+					// comentar para testes
+					// v[i] = v[i].split(":")[1];
 					v[i] = v[i].replace("\"", "");
 					v[i] = v[i].replace("\\", "");
 					v[i] = v[i].replace(" ", "");
-					v[i] = v[i].replace(";", "");
+					// v[i] = v[i].replace(";", "");
 				}
+				id = new StringToken(v[0]);
+				// TESTANDO A PARADA DO ID
+				// System.out.println(" ID : " + v[0]+"  Valor: " + v[3]);
 
-				battery = new StringToken(v[0]);
-				temperature = new StringToken(v[1]);
-				sensor1 = new StringToken(v[2]);
-				sensor2 = new StringToken(v[3]);
-				sensor3 = new StringToken(v[4]);
-				gps = new StringToken(v[8]);
-				compass = new StringToken(v[6]);
-				gotoM = new StringToken(v[7]);
-				rotate = new StringToken(v[5]);
-				activate = new StringToken(v[9]);
+				if (id.stringValue().contains(
+						robotIdRecv.getValueAsString().replace("\"", "")
+								.replace("\"", ""))) {
 
-				outbattery.send(0, battery);
-				outTemperature.send(0, temperature);
-				outSensor1.send(0, sensor1);
-				outSensor2.send(0, sensor2);
-				outSensor3.send(0, sensor3);
-				outGps.send(0, gps);
-				outgoto.send(0, gotoM);
-				outRotate.send(0, rotate);
-				outActivate.send(0, activate);
+					battery = new StringToken(v[1]);
+					temperature = new StringToken(v[2]);
+					sensor1 = new StringToken(v[10]);
+					sensor2 = new StringToken(v[4]);// new
+																		// StringToken(v[4]);
+					sensor3 = new StringToken(v[9]);
+					//
+					// System.out.println("Valor do sensor 2= " +
+					// sensor2.toString());
+					// String position [] = v[5].toString().split(";");
+					gps = new StringToken(v[3]);
+					//
+					compass = new StringToken(v[7]);
+					gotoM = new StringToken(v[8]);
+					rotate = new StringToken(v[6]);
+					activate = new StringToken(v[5]);
 
+					String teste = sensor2.toString().replace("\"", "");
+					teste = teste.replace("\"", "");
+					teste = teste.replace("\"", "");
+					teste = teste.replace("\'", "");
+					teste = teste.replace("<", "");
+					teste = teste.replace(">", "");
+
+					// IntToken tmpSensor2 = new IntToken
+					// (Integer.parseInt(teste));
+
+					outid.send(0, id);
+					outbattery.send(0, battery);
+					outTemperature.send(0, temperature);
+
+					outSensor1.send(0, sensor1);
+					outSensor2.send(0, sensor2);// sensor2));
+					outSensor3.send(0, sensor3);
+					// outGps.send(0, gps);
+					// tratamento do gps para divisão em 3 partes x y e z
+					String xyz[] = gps.toString().split(";");
+					// System.out.println(gps.toString());
+					for (int i = 0; i < xyz.length; i++) {
+						xyz[i] = xyz[i].replace("\"", "");
+						xyz[i] = xyz[i].replace("\"", "");
+						xyz[i] = xyz[i].replace("\"", "");
+						xyz[i] = xyz[i].replace("\'", "");
+						xyz[i] = xyz[i].replace("<", "");
+						xyz[i] = xyz[i].replace(">", "");
+						// System.out.println("indice " + i + " = " +
+						// xyz[i]);
+					}
+					// System.out.println(" \t--------");
+					if (xyz.length == 3) {
+						// tres saidas para o gps
+						outGps.send(0, new StringToken(xyz[0]));
+						outGps.send(1, new StringToken(xyz[1]));
+						outGps.send(2, new StringToken(xyz[2]));
+					} else if (xyz.length == 2) {
+						outGps.send(0, new StringToken(xyz[0]));
+						outGps.send(1, new StringToken(xyz[1]));
+					} else if (xyz.length == 1) {
+						 outGps.send(0, new StringToken(xyz[0]));
+						 System.out.println("Deveria ter enviado");
+					}
+					// ---
+
+					outgoto.send(0, gotoM);
+					outRotate.send(0, rotate);
+					outActivate.send(0, activate);
+				}
 			} catch (ArrayIndexOutOfBounds e) {
 				// TODO Auto-generated catch block
 				e.printStackTrace();
@@ -368,21 +418,30 @@ public class MasterFederateActor extends TypedAtomicActor implements
 
 			attributesToSend = null;
 
-		}// angelo - estava comentado - novo modelo
-
+		} else {
+			System.out.println("Num chegou foi nada");// angelo - estava
+														// comentado - novo
+														// modelo
+		}
+		boolean temp = false;
 		if (input.hasToken(0)) {
-			System.out.println("MASTER: HAS TOKEN (INPUT)");
-			Token battery = new StringToken("none");
-			Token temperature = new StringToken("none");
-			Token sensor1 = new StringToken("none");
-			Token sensor2 = new StringToken("none");
-			Token sensor3 = new StringToken("none");
-			Token gps = new StringToken("none");
-			Token compass = new StringToken("none");
-			Token gotoM = new StringToken("none");
-			Token rotate = new StringToken("none");
-			Token activate = new StringToken("none");
+			Token id = new StringToken("");
 
+			Token battery = new StringToken("");
+			Token temperature = new StringToken("");
+			Token sensor1 = new StringToken("");
+			Token sensor2 = new StringToken("");
+			Token sensor3 = new StringToken("");
+			Token gps = new StringToken("");
+			Token compass = new StringToken("");
+			Token gotoM = new StringToken("");
+			Token rotate = new StringToken("");
+			Token activate = new StringToken("");
+
+			if (inid.getWidth() > 0 && inid.hasToken(0)) {
+				// Otimiza, remove o inputValue
+				id = inid.get(0);
+			}
 			if (inbattery.getWidth() > 0) {
 				// Otimiza, remove o inputValue
 				battery = inbattery.get(0);
@@ -390,15 +449,18 @@ public class MasterFederateActor extends TypedAtomicActor implements
 			if (inTemperature.getWidth() > 0) {
 				temperature = inTemperature.get(0);
 			}
-			if (inSensor1.getWidth() > 0 && inSensor1.hasToken(0)) {
+			if (inSensor1.getWidth() > 0) {
 				sensor1 = inSensor1.get(0);
+				temp = true;
 			}
-			if (inSensor2.getWidth() > 0) {
+			if (inSensor2.getWidth() > 0 && inSensor2.hasToken(0)) {
 				sensor2 = inSensor2.get(0);
+				temp = true;
 			}
 
 			if (inSensor3.getWidth() > 0) {
 				sensor3 = inSensor3.get(0);
+				temp = true;
 			}
 
 			if (inGps.getWidth() > 0) {
@@ -409,27 +471,28 @@ public class MasterFederateActor extends TypedAtomicActor implements
 				compass = inCompass.get(0);
 			}
 
-			if (ingoto.getWidth() > 0) {
+			if (ingoto.getWidth() > 0 && ingoto.hasToken(0)) {
 				gotoM = ingoto.get(0);
+				temp = true;
 			}
 
 			if (inRotate.getWidth() > 0) {
 				rotate = inRotate.get(0);
 			}
-			if (inActivate.getWidth() > 0) {
+			if (inActivate.getWidth() > 0 && inActivate.hasToken(0)) {
 				activate = inActivate.get(0);
 			}
 
-			// Criando string para ser processada pelo Master Federate
-			StringToken value = new StringToken(battery + " - " + temperature
-					+ " - " + sensor1 + " - " + sensor2 + " - " + sensor3
-					+ " - " + gps + " - " + compass + " - " + gotoM + " - "
-					+ rotate + " - " + activate);
+			StringToken value = new StringToken(id + " - " + battery + " - "
+					+ temperature + " - " + sensor1 + " - " + sensor2 + " - "
+					+ sensor3 + " - " + gps + " - " + compass + " - " + gotoM
+					+ " - " + rotate + " - " + activate);
 
 			double timeValue = getDirector().getModelTime().getDoubleValue();
 			this.setValue(value);
 			this.setTime(timeValue);
 			hasDataToSend = true;
+			System.out.println("Temos data a evviar");
 
 			Token inputValue = input.get(0);
 		}

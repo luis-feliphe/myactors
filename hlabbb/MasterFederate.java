@@ -23,23 +23,13 @@ import hla.rti.RTIambassador;
 import hla.rti.RTIexception;
 import hla.rti.ResignAction;
 import hla.rti.SuppliedAttributes;
-import hla.rti.SuppliedParameters;
 import hla.rti.jlc.EncodingHelpers;
 import hla.rti.jlc.RtiFactoryFactory;
 
-import java.io.BufferedWriter;
 import java.io.File;
-import java.io.FileWriter;
-import java.io.IOException;
-import java.lang.management.ManagementFactory;
 import java.net.MalformedURLException;
-import java.net.URL;
-
-import javax.management.MBeanServerConnection;
 import javax.swing.JOptionPane;
 
-import org.hyperic.sigar.CpuPerc;
-import org.hyperic.sigar.Mem;
 import org.hyperic.sigar.SigarException;
 import org.hyperic.sigar.cmd.SigarCommandBase;
 
@@ -133,7 +123,6 @@ public class MasterFederate extends SigarCommandBase implements PtolemyFederate 
 	 * see the class level comments
 	 */
 	// private OperatingSystemMXBean osMBean = null;
-	private long nanoBefore, cpuBefore;
 
 	public void createFederate(String federateName, String federateFile)
 			throws RTIexception {
@@ -165,8 +154,7 @@ public class MasterFederate extends SigarCommandBase implements PtolemyFederate 
 			urle.printStackTrace();
 			return;
 		} catch (Exception e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
+				e.printStackTrace();
 		}
 
 		// //////////////////////////////
@@ -185,26 +173,12 @@ public class MasterFederate extends SigarCommandBase implements PtolemyFederate 
 		// other federates.
 		waitForUser();
 
-		/*
-		 * MBeanServerConnection mbsc =
-		 * ManagementFactory.getPlatformMBeanServer();
-		 * 
-		 * try { osMBean = ManagementFactory.newPlatformMXBeanProxy( mbsc,
-		 * ManagementFactory.OPERATING_SYSTEM_MXBEAN_NAME,
-		 * OperatingSystemMXBean.class); } catch (IOException e) { // TODO
-		 * Auto-generated catch block e.printStackTrace(); }
-		 * 
-		 * nanoBefore = System.nanoTime(); cpuBefore =
-		 * osMBean.getProcessCpuTime();
-		 */
-
 		// /////////////////////////////////////////////////////
 		// 5. achieve the point and wait for synchronization //
 		// /////////////////////////////////////////////////////
 		// tell the RTI we are ready to move past the sync point and then wait
 		// until the federation has synchronized on
 		log("calling achieveSynchronizationPoint()");
-		// TODO APENAS REMOVIDO PARA TESTES EM PYTHON
 		achieveSynchronizationPoint();
 
 		// ///////////////////////////
@@ -231,43 +205,9 @@ public class MasterFederate extends SigarCommandBase implements PtolemyFederate 
 	}
 
 	public void sendData(String data) throws RTIexception {
-		// 9.1 update the attribute values of the instance //
-		// System.out.println("bbbbbbbbbb");
+
 		updateAttributeValues(data); // objecthandle
 
-		/*
-		 * try { BufferedWriter arquivo; String str = ""; CpuPerc cpu; cpu =
-		 * sigar.getCpuPerc(); Mem memory = sigar.getMem();
-		 * 
-		 * //str = CpuPerc.format(cpu.getSys());
-		 * 
-		 * double totalMemory = (double)memory.getTotal() / (1024*1024*1024);
-		 * double usedMemory = (double)memory.getUsed() / (1024*1024*1024);
-		 * //vira GB - origianl eh bytes double freeMemory =
-		 * (double)memory.getFree() / (1024*1024*1024); double usedMemoryPercent
-		 * = (double)memory.getUsedPercent();
-		 * 
-		 * Runtime runtime = Runtime.getRuntime(); double totalMemoryJVM =
-		 * (double)runtime.totalMemory() / (1024*1024); //valor utilizado pela
-		 * JVM - em bytes double freeMemoryJVM = (double)runtime.freeMemory() /
-		 * (1024*1024); double maxMemory = (double)runtime.maxMemory() / 1024;
-		 * 
-		 * // str = ""+memory.getUsedPercent();
-		 * 
-		 * String cpu_pc = CpuPerc.format(cpu.getCombined()); String cpu_jvm =
-		 * CpuPerc.format(cpu.getSys());
-		 * 
-		 * str = usedMemoryPercent+"GB - "+ (totalMemoryJVM -
-		 * freeMemoryJVM)+"MB - "+cpu_pc+" - "+cpu_jvm;
-		 * 
-		 * arquivo = new BufferedWriter(new
-		 * FileWriter("config/experimentos_mem_used.txt", true));
-		 * arquivo.write(str); arquivo.newLine(); arquivo.close(); } catch
-		 * (Exception e1) { e1.printStackTrace(); }
-		 */
-
-		// 9.2 send an interaction
-		// sendInteraction(data);//angelo
 	}
 
 	public void finalizeFederate() throws RTIexception {
@@ -343,18 +283,7 @@ public class MasterFederate extends SigarCommandBase implements PtolemyFederate 
 		log("Joined Federation as " + federateName);
 	}
 
-	private void announceSynchronizationPoint() throws RTIexception {
 
-		log("MasterFederate - announceSynPoint()");
-
-		byte[] tag = EncodingHelpers.encodeString("hi!");
-		rtiamb.registerFederationSynchronizationPoint(READY_TO_RUN, tag);
-		// wait until the point is announced
-		while (fedamb.isRegistered == false || fedamb.isAnnounced == false) {
-			log(" tick () !!");
-			((CertiRtiAmbassador) rtiamb).tick2();
-		}
-	}
 
 	private void achieveSynchronizationPoint() throws RTIexception {
 		// Not present in SlaveFederate
@@ -448,33 +377,39 @@ public class MasterFederate extends SigarCommandBase implements PtolemyFederate 
 		// get all the handle information for the attributes of ObjectRoot.A
 
 		int classHandle = rtiamb.getObjectClassHandle("ObjectRoot.robot");
-		int aaHandle = rtiamb.getAttributeHandle("battery", classHandle);
-		int abHandle = rtiamb.getAttributeHandle("temperature", classHandle);
-		int acHandle = rtiamb.getAttributeHandle("sensor1", classHandle);
-		int adHandle = rtiamb.getAttributeHandle("sensor2", classHandle);
-		int aeHandle = rtiamb.getAttributeHandle("sensor3", classHandle);
-		int afHandle = rtiamb.getAttributeHandle("gps", classHandle);
-		int agHandle = rtiamb.getAttributeHandle("compass", classHandle);
-		int ahHandle = rtiamb.getAttributeHandle("goto", classHandle);
-		int aiHandle = rtiamb.getAttributeHandle("rotate", classHandle);
-		int ajHandle = rtiamb.getAttributeHandle("activate", classHandle);
-
+		// int classHandle = rtiamb.getObjectClassHandle( "ObjectRoot.string" );
+		int idHandle = rtiamb.getAttributeHandle("id", classHandle);
+		int batteryHandle = rtiamb.getAttributeHandle("battery", classHandle);
+		int temperatureHandle = rtiamb.getAttributeHandle("temperature", classHandle);
+		int sensor1Handle = rtiamb.getAttributeHandle("sensor1", classHandle);
+		int sensor2Handle = rtiamb.getAttributeHandle("sensor2", classHandle);
+		int sensor3Handle = rtiamb.getAttributeHandle("sensor3", classHandle);
+		int gpsHandle = rtiamb.getAttributeHandle("gps", classHandle);
+		int compassHandle = rtiamb.getAttributeHandle("compass", classHandle);
+		int gotoHandle = rtiamb.getAttributeHandle("goto", classHandle);
+		int rotateHandle = rtiamb.getAttributeHandle("rotate", classHandle);
+		int activateHandle = rtiamb.getAttributeHandle("activate", classHandle);
 		// int classHandle = rtiamb.getObjectClassHandle("InteractionRoot.X");
 		// int aaHandle = rtiamb.getAttributeHandle("xa", classHandle);
 
 		// package the information into a handle set
 		AttributeHandleSet attributes = RtiFactoryFactory.getRtiFactory()
 				.createAttributeHandleSet();
-		attributes.add(aaHandle);
-		attributes.add(abHandle);
-		attributes.add(acHandle);
-		attributes.add(adHandle);
-		attributes.add(aeHandle);
-		attributes.add(afHandle);
-		attributes.add(agHandle);
-		attributes.add(ahHandle);
-		attributes.add(aiHandle);
-		attributes.add(ajHandle);
+		
+		//adding handles
+		attributes.add(idHandle);
+
+		attributes.add(batteryHandle);
+		attributes.add(temperatureHandle);
+		attributes.add(sensor1Handle);
+		attributes.add(sensor2Handle);
+		attributes.add(sensor3Handle);
+		attributes.add(gpsHandle);
+		attributes.add(compassHandle);
+		attributes.add(gotoHandle);
+		attributes.add(rotateHandle);
+		attributes.add(activateHandle);
+
 		// do the actual publication
 		rtiamb.publishObjectClass(classHandle, attributes);
 
@@ -531,74 +466,51 @@ public class MasterFederate extends SigarCommandBase implements PtolemyFederate 
 		// /////////////////////////////////////////////
 		// create the necessary container and values //
 		// /////////////////////////////////////////////
-		// create the collection to store the values in, as you can see
-		// this is quite a lot of work
 
-		// SuppliedAttributes attributes =
-		// RtiFactoryFactory.getRtiFactory().createSuppliedAttributes();
-
-		// generate the new values
-		// we use EncodingHelpers to make things nice friendly for both Java and
-		// C++
-
-		// System.out.println("Ultimo valor Processado no master Federate => "+data);
 
 		SuppliedAttributes attributes = RtiFactoryFactory.getRtiFactory()
 				.createSuppliedAttributes();
 
 		String[] tokens = data.split(" - ");
+		
+		byte[] id = EncodingHelpers.encodeString(tokens[0]);
+		byte[] battery = EncodingHelpers.encodeString( tokens[1]);
+		byte[] temperature = EncodingHelpers.encodeString(tokens[2]);
+		byte[] sensor1 = EncodingHelpers.encodeString( tokens[3]);
+		byte[] sensor2 = EncodingHelpers.encodeString(tokens[4]);
+		byte[] sensor3 = EncodingHelpers.encodeString(tokens[5]);
+		byte[] gps = EncodingHelpers.encodeString( tokens[6]);
+		byte[] compass = EncodingHelpers.encodeString(tokens[7]);
+		byte[] gotom = EncodingHelpers.encodeString(tokens[8]);
+		byte[] rotate = EncodingHelpers.encodeString( tokens[9]);
+		byte[] activate = EncodingHelpers.encodeString(tokens[10]);
 
-		/*
-		 * Recebendo valores (Utilizar ordem crescente
-		 */
-		byte[] battery = EncodingHelpers.encodeString("battery:" + tokens[0]);
-		byte[] temperature = EncodingHelpers.encodeString("temperature:"
-				+ tokens[1]);
-		byte[] sensor1 = EncodingHelpers.encodeString("sensor1:" + tokens[2]);
-		byte[] sensor2 = EncodingHelpers.encodeString("sensor2:" + tokens[3]);
-		byte[] sensor3 = EncodingHelpers.encodeString("sensor3:" + tokens[4]);
-		byte[] gps = EncodingHelpers.encodeString("gps:" + tokens[5]);
-		byte[] compass = EncodingHelpers.encodeString("compass:" + tokens[6]);
-		byte[] gotom = EncodingHelpers.encodeString("goto:" + tokens[7]);
-		byte[] rotate = EncodingHelpers.encodeString("rotate:" + tokens[8]);
-		byte[] activate = EncodingHelpers.encodeString("activate:" + tokens[9]);
-
-		/*
-		 * System.out.println("----- Mostrando valores -------"); for (int i = 0
-		 * ; i < tokens.length; i++ ){ System.out.println(tokens[i]); }
-		 * System.out.println(" ----- Fim de valores ---------");
-		 */
+		
+		
+//		System.out.println("----- Mostrando valores -------");
+//		for (int i = 0 ; i < tokens.length; i++ ){
+//			System.out.println(tokens[i]);
+//		}
+//		//System.out.println(" ----- Fim de valores ---------");
+//		
 		int classHandle = rtiamb.getObjectClass(objectHandle);
-		/*
-		 * Adicionando valores recebidos a variavel attributes
-		 */
-		attributes.add(rtiamb.getAttributeHandle("battery", classHandle),
-				battery);
-		attributes.add(rtiamb.getAttributeHandle("temperature", classHandle),
-				temperature);
-		attributes.add(rtiamb.getAttributeHandle("sensor1", classHandle),
-				sensor1);
-		attributes.add(rtiamb.getAttributeHandle("sensor2", classHandle),
-				sensor2);
-		attributes.add(rtiamb.getAttributeHandle("sensor3", classHandle),
-				sensor3);
+
+		attributes.add(rtiamb.getAttributeHandle("id", classHandle),id);
+		attributes.add(rtiamb.getAttributeHandle("battery", classHandle),battery);
+		attributes.add(rtiamb.getAttributeHandle("temperature", classHandle),	temperature);
+		attributes.add(rtiamb.getAttributeHandle("sensor1", classHandle),sensor1);
+		attributes.add(rtiamb.getAttributeHandle("sensor2", classHandle),sensor2);
+		attributes.add(rtiamb.getAttributeHandle("sensor3", classHandle),sensor3);
 		attributes.add(rtiamb.getAttributeHandle("gps", classHandle), gps);
-		attributes.add(rtiamb.getAttributeHandle("compass", classHandle),
-				compass);
+		attributes.add(rtiamb.getAttributeHandle("compass", classHandle), compass);
 		attributes.add(rtiamb.getAttributeHandle("goto", classHandle), gotom);
-		attributes
-				.add(rtiamb.getAttributeHandle("rotate", classHandle), rotate);
+		attributes.add(rtiamb.getAttributeHandle("rotate", classHandle), rotate);
 		attributes.add(rtiamb.getAttributeHandle("activate", classHandle),
 				activate);
 
-		/*
-		 * Enviando via HLA
-		 */
 		byte[] tag = EncodingHelpers.encodeString("hi!");
-		rtiamb.updateAttributeValues(objectHandle, attributes, tag);
-		CertiLogicalTime time = new CertiLogicalTime(fedamb.federateTime
-				+ fedamb.federateLookahead);
-
+		CertiLogicalTime time = new CertiLogicalTime(fedamb.federateTime+ fedamb.federateLookahead);
+	
 		rtiamb.updateAttributeValues(objectHandle, attributes, tag, time);
 
 	}
@@ -620,7 +532,7 @@ public class MasterFederate extends SigarCommandBase implements PtolemyFederate 
 		// wait for the time advance to be granted. ticking will tell the
 		// LRC to start delivering callbacks to the federate
 		while (fedamb.isAdvancing) {
-			((CertiRtiAmbassador) rtiamb).tick2();
+			((CertiRtiAmbassador) rtiamb).tick();//tick2();
 		}
 	}
 
@@ -629,13 +541,14 @@ public class MasterFederate extends SigarCommandBase implements PtolemyFederate 
 		fedamb.isAdvancing = true;
 		LogicalTime newTime = new CertiLogicalTime(nextStep);
 		rtiamb.timeAdvanceRequest(newTime);
-
-		// log("Time Advanced to " + newTime);
+		
+		// syso
+		// log( "Time Advanced to " + newTime );
 
 		// wait for the time advance to be granted. ticking will tell the
 		// LRC to start delivering callbacks to the federate
 		while (fedamb.isAdvancing) {
-			((CertiRtiAmbassador) rtiamb).tick2();
+			((CertiRtiAmbassador) rtiamb).tick();//tick2();
 		}
 	}
 
@@ -670,19 +583,16 @@ public class MasterFederate extends SigarCommandBase implements PtolemyFederate 
 	}
 
 	public int getObjectHandle() {
-		// TODO Auto-generated method stub
 		return this.objectHandle;
 	}
 
 	@Override
 	public double getRTINextTime() {
-		// TODO Auto-generated method stub
 		return fedamb.federateTime + fedamb.federateLookahead;
 	}
 
 	@Override
 	public void output(String[] arg0) throws SigarException {
-		// TODO Auto-generated method stub
 
 	}
 
